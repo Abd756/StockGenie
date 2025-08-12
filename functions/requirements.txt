@@ -1,0 +1,7 @@
+firebase_functions~=0.1.0
+firebase-admin
+pandas
+numpy
+python-dateutil
+requests
+beautifulsoup4

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+<section style="background: linear-gradient(90deg,#f8fafc 60%,#e0e7ef 100%); border-radius: 0 0 32px 32px; padding: 2.5rem 0 2rem 0; box-shadow: 0 2px 16px #0001; margin-bottom:2.5rem;">
+  <div style="text-align:center;">
+    <h1 style="font-size:2.2rem; font-weight:800; color:#2d3a4a;">📈 Technical Analysis</h1>
+    <p style="color:#64748b; margin:1.2rem 0 0.5rem 0; font-size:1.13rem; max-width:700px; margin-left:auto; margin-right:auto;">
+      Instantly analyze PSX stocks with AI-powered predictions and key technical indicators.
+    </p>
+    <form method="POST" style="margin-top:2rem; display:inline-block; background:#fff; padding:1.2rem 2rem; border-radius:14px; box-shadow:0 1px 8px #0001;">
+      <label for="stock" style="font-weight:600; color:#223388;">Stock Ticker:</label>
+      <input type="text" name="stock" id="stock" required style="margin:0 0.7rem; padding:0.4rem 0.8rem; border-radius:6px; border:1px solid #cbd5e1;">
+      <button type="submit" style="background:#223388; color:#fff; border:none; border-radius:6px; padding:0.4rem 1.2rem; font-weight:600; cursor:pointer;">Predict</button>
+    </form>
+    {% if error %}
+      <div style="color: #ef4444; margin-top: 10px; font-weight:600;">{{ error }}</div>
+    {% endif %}
+  </div>
+</section>
+
+{% if stock_name or prediction or features or result or indicators or chart_data %}
+<section style="max-width:900px; margin:0 auto 2.5rem auto; background:#fff; border-radius:18px; box-shadow:0 2px 16px #0001; padding:2rem 1.5rem;">
+  {% if stock_name %}
+    <h2 style="color:#223388; font-size:1.3rem; font-weight:700;">Stock: {{ stock_name }}</h2>
+  {% endif %}
+
+  {% if prediction %}
+    <div style="margin:1.2rem 0;">
+      <span style="background:#e0e7ef; color:#223388; font-weight:700; padding:0.5rem 1.2rem; border-radius:8px; font-size:1.15rem;">Prediction: {{ prediction }}</span>
+    </div>
+  {% endif %}
+
+  {% if features %}
+    <div style="margin:1.2rem 0;">
+      <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">Key Features</h3>
+      <ul style="color:#475569; font-size:1.08rem; margin-left:1.2rem;">
+        <li>Close Price: <b>{{ features.Close }}</b></li>
+        <li>SMA 30: <b>{{ features.SMA_30 }}</b></li>
+        <li>RSI: <b>{{ features.RSI }}</b></li>
+        <li>Price Change %: <b>{{ features.Price_Change_Pct }}</b></li>
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if result %}
+    <div style="margin:1.2rem 0;">
+      <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">Model Predictions</h3>
+      <ul style="color:#475569; font-size:1.08rem; margin-left:1.2rem;">
+        <li>Logistic Regression: <b>{{ result.Logistic }}</b></li>
+        <li>SVM: <b>{{ result.SVM }}</b></li>
+        <li>Random Forest: <b>{{ result.RandomForest }}</b></li>
+        <li style="margin-top:0.5rem;"><strong>Final Ensemble: <span style="color:#223388;">{{ result.Final }}</span></strong></li>
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if indicators %}
+    <div style="margin:1.2rem 0;">
+      <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">Latest Indicators</h3>
+      <ul style="color:#475569; font-size:1.08rem; margin-left:1.2rem;">
+        {% for key, value in indicators.items() %}
+          <li>{{ key }}: <b>{{ value }}</b></li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if chart_data %}
+    <div style="margin:2rem 0;">
+      <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">Stock Chart</h3>
+      <canvas id="stockChart" width="600" height="300" style="background:#f8fafc; border-radius:10px;"></canvas>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script>
+        const chartData = {{ chart_data|tojson }};
+        const ctx = document.getElementById('stockChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: chartData.TIME,
+            datasets: [{
+              label: 'Close Price',
+              data: chartData.CLOSE,
+              borderColor: '#223388',
+              backgroundColor: 'rgba(34,51,136,0.08)',
+              fill: true,
+              tension: 0.2
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              x: { display: true, title: { display: true, text: 'Date' } },
+              y: { display: true, title: { display: true, text: 'Price' } }
+            }
+          }
+        });
+      </script>
+    </div>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

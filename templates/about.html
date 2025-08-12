@@ -1,0 +1,944 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* Dark Theme About Page CSS */
+.about-hero-section {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #4a5568 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 4rem 1rem 3rem 1rem;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.about-hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+                </div>
+        </div>
+        
+        <div class="faq-section">
+            <h2 class="section-title" style="text-align: center; margin-top: 4rem; color: white;">
+                ❓ Frequently Asked Questions
+                      <div class=                </div>
+                     </div>
+            <div class="faq-item">
+                <button class="faq-question">
+                    👥 What kind of users is StockGenie for?
+            <div class="faq-item">
+                <button class="faq-question">
+                    👥 What kind of users is StockGenie for?
+                <button class="faq-question">
+                    💰 Is this tool free to use?
+                </button>
+                <div class="faq-answer">
+                    Yes! Currently, StockGenie is <span class="highlight">completely free</span> to use for all users. You don't even need to sign up or create an account.
+                </div>
+            </div>div class="faq-item">
+                <button class="faq-question">
+                    💰 Is this tool free to use?
+                </button>
+                <div class="faq-answer">
+                    Yes! Currently, StockGenie is <span class="highlight">completely free</span> to use for all users. You don't even need to sign up or create an account.
+                </div>
+            </div>   </h2>data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff03" points="0,1000 1000,0 1000,1000"/></svg>');
+    background-size: cover;
+}
+
+.about-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    color: white;
+}
+
+.about-hero-title {
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.about-hero-description {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    line-height: 1.6;
+    color: #cbd5e1;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Content Sections */
+.content-section {
+    padding: 4rem 1rem;
+    background: #1a202c;
+}
+
+.content-section:nth-child(even) {
+    background: #2d3748;
+}
+
+.content-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.section-title {
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 700;
+    color: #fbbf24;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    border-radius: 2px;
+}
+
+.content-text {
+    color: #e2e8f0;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.content-list {
+    color: #cbd5e1;
+    font-size: clamp(1rem, 2vw, 1.1rem);
+    line-height: 1.7;
+    margin-left: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.content-list li {
+    margin-bottom: 0.8rem;
+    position: relative;
+}
+
+.content-list li::marker {
+    color: #fbbf24;
+}
+
+.highlight {
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+/* Help Center Section */
+.help-section {
+    padding: 4rem 1rem;
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #1a202c 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.help-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff08" points="0,0 300,0 0,300"/><polygon fill="%23fbbf2408" points="700,1000 1000,700 1000,1000"/></svg>');
+    background-size: cover;
+    pointer-events: none;
+}
+
+.help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 2.5rem;
+    margin-top: 3rem;
+    position: relative;
+    z-index: 2;
+}
+
+.help-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 2.5rem;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(251,191,36,0.25);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.help-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.help-card:hover {
+    background: rgba(251,191,36,0.12);
+    transform: translateY(-8px);
+    border-color: rgba(251,191,36,0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(251,191,36,0.15);
+}
+
+.help-card:hover::before {
+    opacity: 1;
+}
+
+.help-card-title {
+    color: #fbbf24;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.help-card-content {
+    color: #e2e8f0;
+    line-height: 1.7;
+    font-size: 1.05rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* FAQ Section */
+.faq-section {
+    margin-top: 0;
+    padding: 3rem 1rem;
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #1a202c 100%);
+    border-radius: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.faq-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff06" points="0,0 400,0 0,400"/><polygon fill="%23fbbf2406" points="600,1000 1000,600 1000,1000"/></svg>');
+    background-size: cover;
+    pointer-events: none;
+}
+
+.faq-section .section-title {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 2.5rem;
+}
+
+#faq-accordion {
+    position: relative;
+    z-index: 2;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    margin-bottom: 1.2rem;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(45,55,72,0.8);
+    border: 1px solid rgba(251,191,36,0.25);
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.faq-item:hover {
+    border-color: rgba(251,191,36,0.5);
+    background: rgba(45,55,72,0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(251,191,36,0.1);
+}
+
+.faq-question {
+    width: 100%;
+    text-align: left;
+    background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,191,36,0.08));
+    border: none;
+    outline: none;
+    padding: 1.3rem 1.8rem;
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: #fbbf24;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.faq-question:hover {
+    background: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(251,191,36,0.15));
+    color: #f59e0b;
+}
+
+.faq-question::after {
+    content: '+';
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: #fbbf24;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+.faq-question.active {
+    background: linear-gradient(135deg, rgba(251,191,36,0.3), rgba(251,191,36,0.2));
+    color: #f59e0b;
+}
+
+.faq-question.active::after {
+    transform: rotate(45deg);
+    color: #f59e0b;
+}
+
+.faq-answer {
+    display: none;
+    padding: 1.5rem 1.8rem;
+    color: #e2e8f0;
+    background: rgba(26,32,44,0.6);
+    line-height: 1.7;
+    font-size: 1rem;
+    border-top: 1px solid rgba(251,191,36,0.1);
+}
+
+.faq-answer a {
+    color: #fbbf24;
+    text-decoration: underline;
+}
+
+.faq-answer a:hover {
+    color: #f59e0b;
+}
+
+/* Team Section */
+.team-section {
+    padding: 4rem 1rem;
+    background: #1a202c;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.team-card {
+    background: #2d3748;
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid #4a5568;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.team-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    background: #374151;
+}
+
+.team-name {
+    color: #fbbf24;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.team-role {
+    color: #e2e8f0;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.team-description {
+    color: #cbd5e1;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.academic-note {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: rgba(251,191,36,0.1);
+    border-radius: 15px;
+    border: 1px solid rgba(251,191,36,0.3);
+    color: #cbd5e1;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Disclaimer Section */
+.disclaimer-section {
+    padding: 3rem 1rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    margin: 2rem 0 0 0;
+}
+
+.disclaimer-content {
+    max-width: 900px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.disclaimer-text {
+    color: white;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    line-height: 1.6;
+    text-align: center;
+}
+
+.disclaimer-highlight {
+    font-weight: 700;
+    color: #fbbf24;
+}
+
+/* Compact Help Center Styles */
+.compact-card {
+    padding: 1.8rem !important;
+    max-height: 420px;
+    overflow: hidden;
+}
+
+.steps-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0.8rem;
+    background: rgba(251,191,36,0.06);
+    border-radius: 10px;
+    border-left: 3px solid #fbbf24;
+    transition: all 0.3s ease;
+}
+
+.step-item:hover {
+    background: rgba(251,191,36,0.12);
+    transform: translateX(5px);
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #1a202c;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.step-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.step-content .highlight {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.step-content small {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.support-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.compact-contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 1rem;
+    background: rgba(251,191,36,0.08);
+    border-radius: 12px;
+    border: 1px solid rgba(251,191,36,0.2);
+    transition: all 0.3s ease;
+}
+
+.contact-item:hover {
+    background: rgba(251,191,36,0.15);
+    border-color: rgba(251,191,36,0.4);
+    transform: translateY(-2px);
+}
+
+.contact-icon {
+    font-size: 1.2rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(251,191,36,0.15);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+}
+
+.contact-info strong {
+    color: #fbbf24;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.contact-info a {
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.3s ease;
+}
+
+.contact-info a:hover {
+    color: #fbbf24;
+}
+
+.contact-info span {
+    color: #10b981;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.quick-tip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    background: rgba(16,185,129,0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(16,185,129,0.3);
+    text-align: center;
+    justify-content: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .help-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .content-list {
+        margin-left: 1rem;
+    }
+
+    .compact-card {
+        padding: 1.5rem !important;
+        max-height: none;
+    }
+
+    .step-item {
+        padding: 0.7rem;
+    }
+
+    .step-number {
+        width: 1.6rem;
+        height: 1.6rem;
+        font-size: 0.8rem;
+    }
+
+    .contact-item {
+        padding: 0.7rem 0.8rem;
+    }
+
+    .contact-icon {
+        width: 2.2rem;
+        height: 2.2rem;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-hero-section {
+        padding: 2rem 1rem;
+        min-height: 40vh;
+    }
+    
+    .content-section,
+    .help-section,
+    .team-section {
+        padding: 2rem 1rem;
+    }
+    
+    .help-card,
+    .team-card {
+        padding: 1.5rem;
+    }
+}
+</style>
+
+<!-- ABOUT HERO SECTION -->
+<section class="about-hero-section">
+    <div class="about-hero-content">
+        <h1 class="about-hero-title">
+            About <span style="color:#fbbf24;">StockGenie</span>
+        </h1>
+        <p class="about-hero-description">
+            🚀 Empowering PSX investors with AI-driven insights, technical analysis, and real-time sentiment — all in one powerful platform.
+        </p>
+    </div>
+</section>
+
+<!-- WHO WE ARE & WHAT WE DO -->
+<section class="content-section">
+    <div class="content-container">
+        <h2 class="section-title">🏢 Who We Are</h2>
+        <p class="content-text">
+            StockGenie is an <span class="highlight">AI-powered stock analysis platform</span> designed specifically for the <span class="highlight">Pakistan Stock Exchange (PSX)</span>. Our mission is to empower individual investors, analysts, and students with the tools and insights typically reserved for institutions — by combining technical analysis, machine learning, and sentiment detection into one unified platform.
+        </p>
+        
+        <h2 class="section-title" style="margin-top: 3rem;">⚙️ What We Do</h2>
+        <ul class="content-list">
+            <li>Track key <span class="highlight">technical indicators</span> like RSI, SMA-30, and % price change with real-time precision</li>
+            <li>Receive <span class="highlight">Buy/Sell/Neutral predictions</span> using trained machine learning models with 94%+ accuracy</li>
+            <li>Understand <span class="highlight">market sentiment</span> by analyzing local news headlines from Dawn, Brecorder, and other trusted sources</li>
+            <li>Make smarter, data-driven decisions — without complex tools or manual charting</li>
+            <li>Access professional-grade analytics previously available only to institutional investors</li>
+        </ul>
+        
+        <h2 class="section-title" style="margin-top: 3rem;">🎯 Why We Built StockGenie</h2>
+        <p class="content-text">
+            Many traders in Pakistan rely on gut feelings, disconnected sources, or outdated tools. Our goal is to bridge the gap between AI research and everyday investing — with a simple, powerful, and transparent platform that can guide PSX-related trading activity through:
+        </p>
+        <ul class="content-list">
+            <li><span class="highlight">Verified technical metrics</span> calculated in real-time</li>
+            <li><span class="highlight">Automated predictions</span> powered by ensemble ML models</li>
+            <li><span class="highlight">Real-time sentiment signals</span> from trusted Pakistani news sources</li>
+            <li><span class="highlight">Transparent methodology</span> so you understand how decisions are made</li>
+        </ul>
+    </div>
+</section>
+
+<!-- HELP CENTER / FAQ -->
+<section class="help-section">
+    <div class="content-container">
+        <h2 class="section-title" style="text-align: center; color: white;">
+            🆘 Help Center
+        </h2>
+        
+        <div class="help-grid">
+            <div class="help-card compact-card">
+                <h3 class="help-card-title">
+                    <span style="font-size: 1.3rem;">📋</span>
+                    How to Use StockGenie
+                </h3>
+                <div class="help-card-content">
+                    <div class="steps-container">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <span class="highlight">Enter Stock Symbol</span>
+                                <small>(OGDC, MCB, ENGRO)</small>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <span class="highlight">View Indicators</span>
+                                <small>RSI, SMA-30, % change</small>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <span class="highlight">AI Predictions</span>
+                                <small>Buy/Sell/Neutral signals</small>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <span class="highlight">News Sentiment</span>
+                                <small>Market mood analysis</small>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">5</div>
+                            <div class="step-content">
+                                <span class="highlight">Make Decisions</span>
+                                <small>Combine all insights</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="help-card compact-card support-card">
+                <h3 class="help-card-title">
+                    <span style="font-size: 1.3rem;">💬</span>
+                    Need Support?
+                </h3>
+                <div class="help-card-content">
+                    <p style="margin-bottom: 1.5rem; font-size: 1rem; color: #cbd5e1; text-align: center;">
+                        Our support team is ready to help!
+                    </p>
+                    
+                    <div class="compact-contact-grid">
+                        <div class="contact-item">
+                            <div class="contact-icon">📧</div>
+                            <div class="contact-info">
+                                <strong>Email</strong>
+                                <a href="mailto:support@stockgenie.ai">support@stockgenie.ai</a>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">📱</div>
+                            <div class="contact-info">
+                                <strong>Phone</strong>
+                                <a href="tel:+923001234567">+92-300-1234567</a>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">⏰</div>
+                            <div class="contact-info">
+                                <strong>Hours</strong>
+                                <span>9 AM - 6 PM (PKT)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-tip">
+                        <span style="color: #fbbf24;">💡</span>
+                        <span style="font-size: 0.9rem; color: #e2e8f0;">Include your stock symbol for faster help!</span>
+                    </div>
+                </div>
+            </div>
+                </div>
+            </div>
+        </div>
+            
+        </div>
+        
+        <div class="faq-section">
+            <h2 class="section-title" style="text-align: center; margin-top: 4rem; color: white;">
+                ❓ Frequently Asked Questions
+            </h2>
+            
+            <div id="faq-accordion" style="margin-top: 2rem;">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        🔄 How often is the data updated?
+                    </button>
+                    <div class="faq-answer">
+                        We update technical indicators and sentiment analysis in <span class="highlight">real-time</span> every time you run a prediction. Our data pipeline processes the latest PSX trading information and financial news within <span class="highlight">30 seconds</span> of market activity.
+                    </div>
+                </div>
+            <div class="faq-item">
+                <button class="faq-question">
+                    🤖 Can I trust the AI predictions?
+                </button>
+                <div class="faq-answer">
+                    The system uses well-trained models (SVM, Random Forest, Logistic Regression). Our testing shows accuracy above <span class="highlight">94%</span> across most stocks. However, no prediction is 100% guaranteed — use it as a guide, not gospel.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">
+                    📰 Where do the headlines come from?
+                </button>
+                <div class="faq-answer">
+                    We scrape financial headlines from reputable Pakistani sources like:<br>
+                    <a href="https://www.dawn.com/business" target="_blank">Dawn Business</a>,
+                    <a href="https://www.brecorder.com" target="_blank">Brecorder</a>,
+                    <a href="https://tribune.com.pk/business" target="_blank">The Express Tribune Business</a>
+                </div>
+            </div>
+            <div class="faq-item" style="margin-bottom:1rem; border-radius:10px; overflow:hidden; box-shadow:0 1px 8px #0001; background:#fff;">
+                <button class="faq-question" style="width:100%; text-align:left; background:#f8fafc; border:none; outline:none; padding:1rem 1.2rem; font-size:1.13rem; color:#2563eb; font-weight:600; cursor:pointer;">Is this tool free to use?</button>
+                <div class="faq-answer" style="display:none; padding:1rem 1.2rem; color:#475569; background:#fff;">
+                    Yes. Currently, StockGenie is <b>completely free</b> to use for all users. You don’t even need to sign up.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">
+                    👥 What kind of users is StockGenie for?
+                </button>
+                <div class="faq-answer">
+                    • <span class="highlight">Independent investors</span> looking for data-driven insights<br>
+                    • <span class="highlight">University students</span> studying finance, CS, or AI<br>
+                    • <span class="highlight">Research scholars</span> exploring financial modeling<br>
+                    • <span class="highlight">Anyone curious</span> about technical analysis & ML in finance
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    ⚠️ What are the limitations?
+                </button>
+                <div class="faq-answer">
+                    StockGenie is an <span class="highlight">academic research project</span> and not licensed financial advice. Always do your own research before investing. Past performance doesn't guarantee future results, and market conditions can change rapidly.
+                </div>
+            </div>
+        </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = document.querySelectorAll('.faq-question');
+            let openAnswer = null;
+            
+            questions.forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    const isOpen = answer.style.display === 'block';
+                    
+                    // Close any open answer
+                    if (openAnswer && openAnswer !== answer) {
+                        openAnswer.style.display = 'none';
+                        openAnswer.previousElementSibling.classList.remove('active');
+                    }
+                    
+                    // Toggle current answer
+                    if (isOpen) {
+                        answer.style.display = 'none';
+                        this.classList.remove('active');
+                        openAnswer = null;
+                    } else {
+                        answer.style.display = 'block';
+                        this.classList.add('active');
+                        openAnswer = answer;
+                        
+                        // Smooth scroll to FAQ item
+                        setTimeout(() => {
+                            this.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'nearest' 
+                            });
+                        }, 100);
+                    }
+                });
+            });
+        });
+        </script>
+    </div>
+</section>
+
+<!-- TEAM SECTION -->
+<section class="team-section">
+    <div class="content-container">
+        <h2 class="section-title" style="text-align: center; color: white;">
+            👥 Meet the Team
+        </h2>
+        
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="team-names">
+                    <h3 class="highlight">Qandeel Sajad</h3>
+                    <h3 class="highlight">Abdullah Irfan</h3>
+                    <h3 class="highlight">Tuba Ali</h3>
+                </div>
+                <div class="team-role">
+                    <span style="color: #fbbf24; font-weight: 600;">Lead Researchers & Developers</span><br>
+                    <span style="color: #cbd5e0;">Undergraduate Students – GC University, Lahore</span><br>
+                    <span style="color: #cbd5e0;">Focus: Formal Verification, Machine Learning, and Systems Modeling</span>
+                </div>
+            </div>
+            
+            <div class="team-card">
+                <div class="team-names">
+                    <h3 class="highlight">Dr. Hafeez Rahman</h3>
+                </div>
+                <div class="team-role">
+                    <span style="color: #fbbf24; font-weight: 600;">Project Supervisor</span><br>
+                    <span style="color: #cbd5e0;">Department of Computer Science – GCU Lahore</span><br>
+                    <span style="color: #cbd5e0;">Expertise: AI Systems, Model Checking, Formal Methods</span>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; text-align: center; padding: 1.5rem; background: rgba(45,55,72,0.5); border-radius: 15px; border: 1px solid rgba(251,191,36,0.2);">
+            <span style="color: #fbbf24; font-weight: 600;">🎓 Academic Project</span><br>
+            <span style="color: #cbd5e0;">Department of Computer Science, GC University, Lahore</span>
+        </div>
+    </div>
+</section>
+
+<!-- DISCLAIMER SECTION -->
+<section class="disclaimer-section">
+    <div class="content-container">
+        <div class="disclaimer-card">
+            <h3 style="color: #ef4444; font-size: 1.3rem; margin-bottom: 1rem;">
+                ⚠️ Important Disclaimer
+            </h3>
+            <p style="color: #f7fafc; font-size: 1.1rem; line-height: 1.6;">
+                <strong style="color: #ef4444;">StockGenie</strong> is an <span class="highlight">academic research project</span> and is not licensed as a financial advisor. Always do your own research before investing. The AI-based predictions are informational and should not be considered as financial advice.
+            </p>
+            <p style="color: #cbd5e0; font-size: 0.95rem; margin-top: 1rem;">
+                This tool is designed for educational and research purposes. Past performance does not guarantee future results.
+            </p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

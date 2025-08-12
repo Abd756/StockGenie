@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>STOCK GENIE</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Add Bootstrap for better styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Blur effect for background when modal is open */
+        body.modal-open .content,
+        body.modal-open nav,
+        body.modal-open footer {
+            filter: blur(3px) brightness(0.7);
+            pointer-events: none;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+        
+        /* Enhanced modal backdrop - consistent across all modals */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.4) !important;
+        }
+        
+        /* Ensure all modals have consistent backdrop behavior */
+        .modal {
+            backdrop-filter: blur(2px);
+        }
+        
+        /* Modal content styling for better focus */
+        .modal-content {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+        /* Navbar height fix */
+        nav {
+            min-height: 60px;
+            background: #232f4b;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #fff !important;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            color: #fff !important;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #fbbf24 !important;
+        }
+        /* Drawer styles */
+        #settingsDrawer {
+            position: fixed;
+            top: 0; right: -300px;
+            width: 300px;
+            height: 100%;
+            background: #232f4b;
+            color: #fff;
+            box-shadow: -2px 0 12px #0002;
+            transition: right 0.3s;
+            z-index: 1051;
+            padding: 2rem 1.5rem;
+        }
+        #settingsDrawer.open {
+            right: 0;
+        }
+        #settingsDrawer .close-btn {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+        }
+        /* Email feedback styling */
+        .email-feedback {
+            transition: all 0.3s ease;
+        }
+        .email-feedback .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Hide content until preloader completes */
+        body:not(.preloader-done) .content,
+        body:not(.preloader-done) nav,
+        body:not(.preloader-done) footer {
+            display: none;
+        }
+        
+        /* Force authentication - prevent interaction for non-authenticated users */
+        {% if not session.get('user') %}
+        body .content,
+        body nav .navbar-nav,
+        body nav .ms-auto a:not(#showLoginModal),
+        body footer {
+            pointer-events: none;
+            user-select: none;
+        }
+        {% endif %}
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="preloader-content">
+            <div class="logo-container">
+                <h1 class="preloader-logo"><i class="fas fa-spin" style="color: #fbbf24; margin-right: 10px;"></i>STOCK GENIE</h1>
+                <p class="preloader-tagline">AI-Powered Stock Analysis</p>
+            </div>
+            <div class="loading-animation">
+                <div class="stock-chart">
+                    <div class="bar bar1"></div>
+                    <div class="bar bar2"></div>
+                    <div class="bar bar3"></div>
+                    <div class="bar bar4"></div>
+                    <div class="bar bar5"></div>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="progress-text">Loading... <span id="progress-percent">0%</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('home') }}">STOCK GENIE</a>
+            <div class="d-flex align-items-center ms-auto">
+                <a href="{{ url_for('about') }}" class="nav-link">About Us</a>
+                <a href="{{ url_for('market_movers') }}" class="nav-link">Gainers/Losers</a>
+                <a href="{{ url_for('technical.technical_home') }}" class="nav-link">Technical Analysis</a>
+                <a href="{{ url_for('sentiment.sentiment_home') }}" class="nav-link">Sentiment Analysis</a>
+                {% if session.get('user') %}
+                    <button id="settingsBtn" class="btn btn-warning ms-3" style="font-weight:600;">Settings</button>
+                {% else %}
+                    <a href="#" id="showLoginModal" class="btn btn-primary ms-3" style="font-weight:600;">Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light ms-2" style="font-weight:600;">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Settings Drawer -->
+    <div id="settingsDrawer">
+        <button class="close-btn" id="closeDrawer">&times;</button>
+        <h4>Account Settings</h4>
+        <hr style="background:#fff;">
+        <p><strong>Username:</strong> {{ session['user']['email'] if session.get('user') else '' }}</p>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger w-100 mt-4">Logout</a>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" 
+         {% if not session.get('user') %}data-bs-backdrop="static" data-bs-keyboard="false"{% endif %}>
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form method="POST" action="{{ url_for('auth.login') }}">
+            <div class="modal-header">
+              <h5 class="modal-title" id="loginModalLabel">Login to Stock Genie</h5>
+              {% if session.get('user') %}
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              {% endif %}
+            </div>
+            <div class="modal-body">
+              <!-- Flash messages for login -->
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                    {% if 'login' in message|lower or 'password' in message|lower %}
+                      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+              {{ login_form.hidden_tag() }}
+              <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                {{ login_form.email(class="form-control", id="email") }}
+                {% for error in login_form.email.errors %}
+                  <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                  {{ login_form.password(class="form-control", id="login_password", type="password") }}
+                  <button class="btn btn-outline-secondary toggle-password" type="button" tabindex="-1" data-target="login_password">
+                    <span class="fa fa-eye"></span>
+                  </button>
+                </div>
+                {% for error in login_form.password.errors %}
+                  <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+                <div class="text-end mt-1">
+                  <a href="#" id="showForgotPasswordModal" style="font-size:0.98rem; color:#3b82f6; font-weight:500; text-decoration:none;">Forgot password?</a>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer flex-column">
+              <button type="submit" class="btn btn-primary w-100 mb-2">Login</button>
+              <div class="text-center w-100">
+                <span>Don't have an account?</span>
+                <a href="#" id="showRegisterFromLogin" style="font-weight:600; color:#3b82f6;">Register here</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true" 
+         {% if not session.get('user') %}data-bs-backdrop="static" data-bs-keyboard="false"{% endif %}>
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form method="POST" action="{{ url_for('auth.register') }}">
+            <div class="modal-header">
+              <h5 class="modal-title" id="registerModalLabel">Create Your Account</h5>
+              {% if session.get('user') %}
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              {% endif %}
+            </div>
+            <div class="modal-body">
+              <!-- Flash messages for register -->
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                    {% if 'register' in message|lower or 'email' in message|lower %}
+                      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+              {{ register_form.hidden_tag() }}
+              <div class="mb-3">
+                <label for="reg_email" class="form-label">Email address</label>
+                {{ register_form.email(class="form-control", id="reg_email") }}
+                {% for error in register_form.email.errors %}
+                  <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                <label for="reg_password" class="form-label">Password</label>
+                <div class="input-group">
+                  {{ register_form.password(class="form-control", id="reg_password", type="password") }}
+                  <button class="btn btn-outline-secondary toggle-password" type="button" tabindex="-1" data-target="reg_password">
+                    <span class="fa fa-eye"></span>
+                  </button>
+                </div>
+                <div class="form-text">At least 6 characters.</div>
+                {% for error in register_form.password.errors %}
+                  <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                <label for="reg_confirm" class="form-label">Confirm Password</label>
+                <div class="input-group">
+                  {{ register_form.confirm_password(class="form-control", id="reg_confirm", type="password") }}
+                  <button class="btn btn-outline-secondary toggle-password" type="button" tabindex="-1" data-target="reg_confirm">
+                    <span class="fa fa-eye"></span>
+                  </button>
+                </div>
+                {% for error in register_form.confirm_password.errors %}
+                  <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="modal-footer flex-column">
+              <button type="submit" class="btn btn-primary w-100 mb-2">Register</button>
+              <div class="text-center w-100">
+                <span>Already have an account?</span>
+                <a href="#" id="showLoginFromRegister" class="ms-1" style="font-weight:600; color:#3b82f6;">Login here</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true" 
+         {% if not session.get('user') %}data-bs-backdrop="static" data-bs-keyboard="false"{% endif %}>
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form method="POST" action="{{ url_for('auth.forgot_password') }}">
+            <div class="modal-header">
+              <h5 class="modal-title" id="forgotPasswordModalLabel">Reset Your Password</h5>
+              {% if session.get('user') %}
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              {% endif %}
+            </div>
+            <div class="modal-body">
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                    {% if 'reset' in message|lower or 'email' in message|lower %}
+                      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+              <div class="mb-3">
+                <label for="forgot_email" class="form-label">Enter your email address</label>
+                <input type="email" class="form-control" id="forgot_email" name="email" placeholder="you@example.com" required>
+              </div>
+            </div>
+            <div class="modal-footer flex-column">
+              <button type="submit" class="btn btn-primary w-100 mb-2">Send Reset Link</button>
+              <div class="text-center w-100">
+                <a href="#" id="showLoginFromForgot" style="font-weight:600; color:#3b82f6;">Back to Login</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- FOOTER -->
+    <footer style="background: #536da4; border-radius: 32px 32px 0 0; margin-top:3rem; padding:2.2rem 0 1.2rem 0; box-shadow: 0 -2px 16px #0001; color:#374151; font-size:1.08rem;">
+        <div style="max-width:1100px; margin:0 auto; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:2rem; padding:0 2rem;">
+            <div style="flex:1 1 220px; min-width:220px;">
+                <h3 style="color:#ffffff; font-weight:800; font-size:1.3rem; margin-bottom:0.7rem;">StockGenie</h3>
+                <p style="color:#000000;">AI-powered stock analysis for the Pakistan Stock Exchange. Smarter investing, made simple.</p>
+            </div>
+            <div style="flex:1 1 180px; min-width:180px;">
+                <h4 style="color:#ffffff; font-size:1.08rem; margin-bottom:0.5rem;">Quick Links</h4>
+                <ul style="list-style:none; padding:0; margin:0;">
+                    <li><a href="{{ url_for('home') }}" style="color:#000000; text-decoration:none;">Home</a></li>
+                    <li><a href="{{ url_for('about') }}" style="color:#000000; text-decoration:none;">About Us</a></li>
+                    <li><a href="{{ url_for('market_movers') }}" style="color:#000000; text-decoration:none;">Gainers/Losers</a></li>
+                    <li><a href="{{ url_for('technical.technical_home') }}" style="color:#000000; text-decoration:none;">Technical Analysis</a></li>
+                    <li><a href="{{ url_for('sentiment.sentiment_home') }}" style="color:#000000; text-decoration:none;">Sentiment Analysis</a></li>
+                </ul>
+            </div>
+            <div style="flex:1 1 220px; min-width:220px;">
+                <h4 style="color:#ffffff; font-size:1.08rem; margin-bottom:0.5rem;">Contact</h4>
+                <p style="margin:0;">Email: <a href="mailto:support@stockgenie.ai" style="color:#ffffff; text-decoration:none;">support@stockgenie.ai</a></p>
+                <p style="margin:0;">Phone: <a href="tel:+923001234567" style="color:#ffffff; text-decoration:none;">+92-300-1234567</a></p>
+            </div>
+            <div style="flex:1 1 180px; min-width:180px;">
+                <h4 style="color:#ffffff; font-size:1.08rem; margin-bottom:0.5rem;">Follow Us</h4>
+                <div style="display:flex; gap:0.7rem;">
+                    <a href="https://twitter.com/" target="_blank" style="color:#ffffff; font-size:1.3rem; text-decoration:none;">&#x1F426; Twitter</a>
+                    <a href="https://facebook.com/" target="_blank" style="color:#ffffff; font-size:1.3rem; text-decoration:none;">&#x1F5E8; Facebook</a>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center; color:#94a3b8; font-size:0.98rem; margin-top:2rem;">
+            &copy; {{ 2025 }} StockGenie. Academic Project – GC University, Lahore. All rights reserved.
+        </div>
+    </footer>
+    
+    <!-- Add Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+    // Forgot password modal logic
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('showForgotPasswordModal')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        if (loginModal) loginModal.hide();
+        var forgotModal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
+        forgotModal.show();
+      });
+      document.getElementById('showLoginFromForgot')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        var forgotModal = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
+        if (forgotModal) forgotModal.hide();
+        var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+      });
+    });
+    // Password visibility toggle
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.toggle-password').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var targetId = btn.getAttribute('data-target');
+          var input = document.getElementById(targetId);
+          if (input.type === 'password') {
+            input.type = 'text';
+            btn.querySelector('span').classList.remove('fa-eye');
+            btn.querySelector('span').classList.add('fa-eye-slash');
+          } else {
+            input.type = 'password';
+            btn.querySelector('span').classList.remove('fa-eye-slash');
+            btn.querySelector('span').classList.add('fa-eye');
+          }
+        });
+      });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if not session.get('user') %}
+            // For non-authenticated users, always show login modal after preloader
+            setTimeout(function() {
+                {% if session.get('show_login_modal') %}
+                    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                    loginModal.show();
+                    {% set _ = session.pop('show_login_modal') %}
+                {% elif session.get('show_forgot_modal') %}
+                    var forgotModal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
+                    forgotModal.show();
+                    {% set _ = session.pop('show_forgot_modal') %}
+                {% elif session.get('show_register_modal') %}
+                    var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+                    registerModal.show();
+                    {% set _ = session.pop('show_register_modal') %}
+                {% else %}
+                    // Default: show login modal for unauthenticated users
+                    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                    loginModal.show();
+                {% endif %}
+            }, 100); // Small delay to ensure DOM is ready
+        {% endif %}
+
+        // Show login modal on button click
+        document.getElementById('showLoginModal')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        });
+
+        // Settings drawer logic
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsDrawer = document.getElementById('settingsDrawer');
+        const closeDrawer = document.getElementById('closeDrawer');
+        if (settingsBtn && settingsDrawer && closeDrawer) {
+            settingsBtn.addEventListener('click', function() {
+                settingsDrawer.classList.add('open');
+            });
+            closeDrawer.addEventListener('click', function() {
+                settingsDrawer.classList.remove('open');
+            });
+        }
+
+        // Show register modal from login modal
+        document.querySelectorAll('[href="#registerModal"]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                if (loginModal) loginModal.hide();
+                var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+                registerModal.show();
+            });
+        });
+        // Show login modal from register modal
+        document.getElementById('showLoginFromRegister')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            var registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+            if (registerModal) registerModal.hide();
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        });
+        // Show register modal from login modal (for the "Register here" button)
+        document.getElementById('showRegisterFromLogin')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            if (loginModal) loginModal.hide();
+            var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+            registerModal.show();
+        });
+    });
+    </script>
+    
+    <script>
+    // Email existence checker for registration
+    document.addEventListener('DOMContentLoaded', function() {
+        const regEmailInput = document.getElementById('reg_email');
+        const emailFeedback = document.createElement('div');
+        emailFeedback.className = 'email-feedback';
+        emailFeedback.style.fontSize = '0.875rem';
+        emailFeedback.style.marginTop = '0.25rem';
+        
+        if (regEmailInput) {
+            regEmailInput.parentNode.appendChild(emailFeedback);
+            
+            let checkTimeout;
+            regEmailInput.addEventListener('input', function() {
+                const email = this.value.trim();
+                
+                // Clear previous timeout
+                clearTimeout(checkTimeout);
+                emailFeedback.innerHTML = '';
+                
+                // Only check if email looks valid
+                if (email && email.includes('@') && email.includes('.')) {
+                    // Add loading indicator
+                    emailFeedback.innerHTML = '<span style="color: #6c757d;"><i class="fa fa-spinner fa-spin"></i> Checking...</span>';
+                    
+                    // Debounce the API call
+                    checkTimeout = setTimeout(() => {
+                        fetch('{{ url_for("auth.check_email") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ email: email })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.exists) {
+                                emailFeedback.innerHTML = '<span style="color: #dc3545;"><i class="fa fa-times-circle"></i> This email is already registered. <a href="#" onclick="switchToLogin()" style="color: #007bff;">Login instead?</a></span>';
+                            } else {
+                                emailFeedback.innerHTML = '<span style="color: #28a745;"><i class="fa fa-check-circle"></i> Email is available</span>';
+                            }
+                        })
+                        .catch(error => {
+                            emailFeedback.innerHTML = '<span style="color: #6c757d;">Unable to check email availability</span>';
+                        });
+                    }, 800); // Wait 800ms after user stops typing
+                }
+            });
+        }
+    });
+    
+    // Function to switch from register to login modal
+    function switchToLogin() {
+        var registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+        if (registerModal) registerModal.hide();
+        var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+    }
+    </script>
+    
+    <script src="{{ url_for('static', filename='js/preloader.js') }}"></script>
+</body>
+</html>

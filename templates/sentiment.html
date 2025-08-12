@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section style="background: linear-gradient(90deg,#f8fafc 60%,#e0e7ef 100%); border-radius: 0 0 32px 32px; padding: 2.5rem 0 2rem 0; box-shadow: 0 2px 16px #0001; margin-bottom:2.5rem;">
+  <div style="text-align:center;">
+    <h1 style="font-size:2.2rem; font-weight:800; color:#2d3a4a;">�️ Sentiment Analysis</h1>
+    <p style="color:#64748b; margin:1.2rem 0 0.5rem 0; font-size:1.13rem; max-width:700px; margin-left:auto; margin-right:auto;">
+      Discover the mood of the PSX market with real-time news sentiment and headline analysis.
+    </p>
+    <form method="POST" style="margin-top:2rem; display:inline-block; background:#fff; padding:1.2rem 2rem; border-radius:14px; box-shadow:0 1px 8px #0001;">
+      <button type="submit" style="background:#223388; color:#fff; border:none; border-radius:6px; padding:0.4rem 1.2rem; font-weight:600; cursor:pointer;">Check Market Sentiment</button>
+    </form>
+  </div>
+</section>
+
+{% if sentiment or articles %}
+<section style="max-width:900px; margin:0 auto 2.5rem auto; background:#fff; border-radius:18px; box-shadow:0 2px 16px #0001; padding:2rem 1.5rem;">
+  {% if sentiment %}
+    <div style="margin-bottom:1.5rem; text-align:center;">
+      <span style="background:#e0e7ef; color:#223388; font-weight:700; padding:0.5rem 1.2rem; border-radius:8px; font-size:1.15rem;">Market Sentiment: {{ sentiment }}</span>
+    </div>
+  {% endif %}
+  {% if articles %}
+    <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">📰 Headlines Analyzed</h3>
+    <ul style="color:#475569; font-size:1.08rem; margin-left:1.2rem;">
+      {% for article in articles %}
+        <li style="margin-bottom:0.5rem;">
+          {{ article.title }}
+          {% if article.link %}
+            <a href="{{ article.link }}" target="_blank" style="color:#3b82f6; text-decoration:underline; margin-left:0.5rem;">[Link]</a>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

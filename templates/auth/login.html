@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+    <section style="background: linear-gradient(90deg,#f8fafc 60%,#e0e7ef 100%); border-radius: 0 0 32px 32px; padding: 2.5rem 0 2rem 0; box-shadow: 0 2px 16px #0001; margin-bottom:2.5rem;">
+        <div style="text-align:center;">
+            <h1 style="font-size:2.2rem; font-weight:800; color:#2d3a4a;">🔐 Login to Stock Genie</h1>
+            <p style="color:#64748b; margin:1.2rem 0 0.5rem 0; font-size:1.13rem; max-width:700px; margin-left:auto; margin-right:auto;">
+                Access your account to get personalized stock analysis and predictions.
+            </p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card" style="border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <div class="card-body p-4">
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label" style="font-weight: 600; color: #2d3a4a;">Email Address</label>
+                                {{ form.email(class="form-control", id="email", placeholder="Enter your email") }}
+                                {% for error in form.email.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="password" class="form-label" style="font-weight: 600; color: #2d3a4a;">Password</label>
+                                {{ form.password(class="form-control", id="password", placeholder="Enter your password") }}
+                                {% for error in form.password.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="d-grid">
+                                {{ form.submit(class="btn btn-primary btn-lg", style="background-color: #223388; border: none;") }}
+                            </div>
+                        </form>
+                        
+                        <div class="modal-footer flex-column">
+                            <button type="submit" class="btn btn-primary w-100 mb-2">Login</button>
+                            <div class="text-center">
+                                <span>Don't have an account?</span>
+                                <a href="{{ url_for('auth.register') }}" class="ms-1" style="font-weight:600; color:#3b82f6;">Register here</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>
