@@ -1,56 +1,429 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Gainers & Losers</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f6fa; }
-        h1 { text-align: center; margin-top: 30px; }
-        .table-container { display: flex; justify-content: center; margin-top: 40px; }
-        table { border-collapse: collapse; width: 400px; margin: 0 20px; background: #fff; box-shadow: 0 2px 8px #ccc; }
-        th, td { border: 1px solid #ddd; padding: 12px 16px; text-align: center; }
-        th { background: #2c3e50; color: #fff; }
-        tr:nth-child(even) { background: #f2f2f2; }
-        caption { font-size: 1.2em; margin-bottom: 10px; font-weight: bold; }
-    </style>
-</head>
-<body>
-    {% extends "base.html" %}
+{% extends "base.html" %}
+{% block content %}
 
-    {% block content %}
-        <h1 style="text-align:center; margin-top:30px;">Top Gainers & Losers</h1>
-        <div class="table-container" style="display:flex; justify-content:center; margin-top:40px;">
-            <table>
-                <caption>Gainers</caption>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Last Close</th>
-                    <th>Change (%)</th>
-                </tr>
-                {% for stock in gainers %}
-                <tr>
-                    <td>{{ stock.symbol }}</td>
-                    <td>{{ stock.last_close }}</td>
-                    <td style="color:green;">{{ stock.change_pct|round(2) }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            <table>
-                <caption>Losers</caption>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Last Close</th>
-                    <th>Change (%)</th>
-                </tr>
-                {% for stock in losers %}
-                <tr>
-                    <td>{{ stock.symbol }}</td>
-                    <td>{{ stock.last_close }}</td>
-                    <td style="color:red;">{{ stock.change_pct|round(2) }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+<style>
+/* Dark Theme Market Movers CSS */
+.market-movers-hero {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #4a5568 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 4rem 1rem 3rem 1rem;
+    min-height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.market-movers-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff03" points="0,1000 1000,0 1000,1000"/></svg>');
+    background-size: cover;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    color: white;
+}
+
+.hero-title {
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-description {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    line-height: 1.6;
+    color: #cbd5e1;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Market Data Section */
+.market-data-section {
+    padding: 4rem 1rem;
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #1a202c 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.market-data-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff08" points="0,0 300,0 0,300"/><polygon fill="%23fbbf2408" points="700,1000 1000,700 1000,1000"/></svg>');
+    background-size: cover;
+    pointer-events: none;
+}
+
+.market-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 3rem;
+    margin-top: 3rem;
+}
+
+.market-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 2.5rem;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(251,191,36,0.25);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.market-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.market-card:hover {
+    background: rgba(251,191,36,0.12);
+    transform: translateY(-8px);
+    border-color: rgba(251,191,36,0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(251,191,36,0.15);
+}
+
+.market-card:hover::before {
+    opacity: 1;
+}
+
+.gainers-card {
+    border-left: 4px solid #10b981;
+}
+
+.losers-card {
+    border-left: 4px solid #ef4444;
+}
+
+.card-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    position: relative;
+    z-index: 2;
+}
+
+.gainers-title {
+    color: #10b981;
+}
+
+.losers-title {
+    color: #ef4444;
+}
+
+.enhanced-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 2;
+}
+
+.enhanced-table thead {
+    background: linear-gradient(135deg, #1a202c, #2d3748);
+}
+
+.enhanced-table th {
+    padding: 1.2rem 1rem;
+    font-weight: 600;
+    text-align: left;
+    color: #fbbf24;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(251,191,36,0.3);
+}
+
+.enhanced-table tbody {
+    background: rgba(26,32,44,0.8);
+}
+
+.enhanced-table td {
+    padding: 1.2rem 1rem;
+    color: #e2e8f0;
+    font-size: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.enhanced-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.enhanced-table tbody tr:hover {
+    background: rgba(251,191,36,0.1);
+    transform: scale(1.02);
+}
+
+.symbol-cell {
+    font-weight: 700;
+    color: #fbbf24;
+    font-size: 1.1rem;
+}
+
+.price-cell {
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.gain-cell {
+    color: #10b981;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.loss-cell {
+    color: #ef4444;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.gain-cell::before {
+    content: '▲ ';
+    font-size: 0.8rem;
+}
+
+.loss-cell::before {
+    content: '▼ ';
+    font-size: 0.8rem;
+}
+
+/* Stats Section */
+.stats-section {
+    padding: 3rem 1rem;
+    background: #1a202c;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.stat-card {
+    background: #2d3748;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid #4a5568;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    background: #374151;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fbbf24;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tables-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .market-card {
+        padding: 1.8rem;
+    }
+    
+    .enhanced-table th,
+    .enhanced-table td {
+        padding: 1rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .market-movers-hero {
+        padding: 2rem 1rem;
+        min-height: 30vh;
+    }
+    
+    .market-data-section {
+        padding: 2rem 1rem;
+    }
+    
+    .tables-grid {
+        gap: 1.5rem;
+    }
+    
+    .market-card {
+        padding: 1.5rem;
+    }
+    
+    .enhanced-table th,
+    .enhanced-table td {
+        padding: 0.8rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+    }
+}
+</style>
+
+<!-- HERO SECTION -->
+<section class="market-movers-hero">
+    <div class="hero-content">
+        <h1 class="hero-title">
+            <span style="font-size: 1.2em; margin-right: 0.3em; vertical-align: middle; background: linear-gradient(45deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">�</span>
+            Market Movers
+        </h1>
+        <p class="hero-description">
+            🚀 Real-time PSX gainers and losers - Track the biggest price movements and identify trending opportunities in the Pakistan Stock Exchange.
+        </p>
+    </div>
+</section>
+
+<!-- MARKET DATA SECTION -->
+<section class="market-data-section">
+    <div class="market-container">
+        <div class="tables-grid">
+            <!-- GAINERS CARD -->
+            <div class="market-card gainers-card">
+                <h2 class="card-title gainers-title">
+                    <span style="font-size: 2rem;">🚀</span>
+                    Top Gainers
+                </h2>
+                <table class="enhanced-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Last Close</th>
+                            <th>Change (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in gainers %}
+                        <tr>
+                            <td class="symbol-cell">{{ stock.symbol }}</td>
+                            <td class="price-cell">Rs {{ stock.last_close }}</td>
+                            <td class="gain-cell">{{ stock.change_pct|round(2) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- LOSERS CARD -->
+            <div class="market-card losers-card">
+                <h2 class="card-title losers-title">
+                    <span style="font-size: 2rem;">📉</span>
+                    Top Losers
+                </h2>
+                <table class="enhanced-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Last Close</th>
+                            <th>Change (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in losers %}
+                        <tr>
+                            <td class="symbol-cell">{{ stock.symbol }}</td>
+                            <td class="price-cell">Rs {{ stock.last_close }}</td>
+                            <td class="loss-cell">{{ stock.change_pct|round(2) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    {% endblock %}
-</body>
-</html>
+    </div>
+</section>
+
+<!-- STATS SECTION -->
+<!-- <section class="stats-section">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ gainers|length }}</div>
+            <div class="stat-label">Active Gainers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ losers|length }}</div>
+            <div class="stat-label">Active Losers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">PSX</div>
+            <div class="stat-label">Exchange</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">Live</div>
+            <div class="stat-label">Data Feed</div>
+        </div>
+    </div>
+</section> -->
+
+{% endblock %}

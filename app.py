@@ -11,6 +11,7 @@ from auth.forms import LoginForm, RegisterForm
 app = Flask(__name__)
 app.config.from_object(config['development'])  # or 'production' as needed
 
+
 # Register blueprints
 app.register_blueprint(technical_bp, url_prefix='/technical')
 app.register_blueprint(sentiment_bp, url_prefix='/sentiment')
@@ -40,7 +41,12 @@ def home():
     # Fetch gainers and losers for the homepage
     stocks_data = get_all_stocks_from_firebase()
     gainers, losers = get_gainers_losers(stocks_data)
-    return render_template('index.html', gainers=gainers[:3], losers=losers[:3])
+    show_disclaimer = False
+    # Show disclaimer only if user is logged in and hasn't accepted
+    if 'user' in session and session.get('just_logged_in', False):
+        show_disclaimer = True
+        session['just_logged_in'] = False  # Only show once after login
+    return render_template('index.html', gainers=gainers[:3], losers=losers[:3], show_disclaimer=show_disclaimer)
 
 # About Us route
 @app.route('/about')

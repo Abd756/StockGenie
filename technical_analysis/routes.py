@@ -45,7 +45,7 @@ def technical_home():
     result = None
 
     if request.method == "POST":
-        stock = request.form["stock"].strip().upper()
+        stock = request.form.get("custom_stock", "").strip().upper() or request.form.get("stock", "").strip().upper()
         stock_name = stock
         end_date = date.today()
         start_date = end_date - relativedelta(months=6)

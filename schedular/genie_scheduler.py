@@ -94,6 +94,8 @@ def get_all_stocks_from_firebase():
         stocks_data[doc.id] = doc.to_dict().get("recent_days", [])
     return stocks_data
 
+
+
 def get_gainers_losers(stocks_data):
     gainers = []
     losers = []

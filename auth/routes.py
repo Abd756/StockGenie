@@ -55,7 +55,8 @@ def login():
                 'refreshToken': user['refreshToken'],
                 'userId': user['localId']
             }
-            flash('Login successful! Welcome to Stock Genie.', 'success')
+            session['just_logged_in'] = True
+            flash('Login successful! Welcome to Invest Genie.', 'success')
             # Clear any modal flags since user is now logged in
             session.pop('show_login_modal', None)
             session.pop('show_register_modal', None)

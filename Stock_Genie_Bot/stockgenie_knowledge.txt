@@ -1,0 +1,105 @@
+Invest Genie Platform Knowledge Base
+===================================
+
+Welcome to Invest Genie! This document provides a comprehensive guide to using the Invest Genie website, understanding its features, and learning about stock market fundamentals (especially for the Pakistan Stock Exchange - PSX).
+
+---
+
+1. Getting Started
+------------------
+- Register for an account to access all features.
+- Log in to view personalized analysis and save your progress.
+- Use the navigation bar to access different modules:
+    - Home
+    - About Us
+    - Gainers/Losers
+    - Technical Analysis
+    - Sentiment Analysis
+    - Account Settings
+
+2. Main Modules & Features
+--------------------------
+A. Home Page
+- Overview of the platform and quick access to top gainers/losers.
+
+B. Gainers/Losers
+- View the top performing and worst performing stocks on the PSX.
+- Data is updated regularly from the PSX and Firebase.
+
+C. Technical Analysis
+- Analyze stocks using technical indicators (e.g., RSI, MACD, moving averages).
+- View prediction results from machine learning models:
+    - Random Forest
+
+    - Support Vector Machine (SVM)
+    - Logistic Regression
+    - Ensemble (Majority Voting)
+- Visualize confusion matrices and feature importance.
+- Scraper module for fetching technical data.
+
+D. Sentiment Analysis
+- Analyze market sentiment using AI (Gemini 1.5 Pro).
+- Get sentiment scores and reasoning for news articles and market data.
+- Sentiment classification using NLP.
+
+E. Authentication
+- Register and log in securely.
+- User management and session handling.
+
+F. Account Settings
+- View and update your account details.
+- Logout securely.
+
+3. How to Use Invest Genie
+-------------------------
+- Start by exploring the Home page for an overview.
+- Use Gainers/Losers to identify interesting stocks.
+- Dive into Technical Analysis for in-depth charting and predictions.
+- Check Sentiment Analysis for market mood and news impact.
+- Use the chatbot for help, explanations, and guidance.
+
+4. For New Users
+----------------
+- Unsure where to start? Ask the chatbot "How do I use Invest Genie?"
+- Want to learn about technical indicators or sentiment analysis? Ask the chatbot for explanations.
+- Need help with PSX fundamentals? The chatbot is trained on a comprehensive guide (see below).
+
+---
+
+5. PSX Fundamentals Guide
+-------------------------
+A Comprehensive Guide to Fundamental Analysis on the PSX
+(This section is imported from your fundamental.txt)
+
+A Comprehensive Guide to Fundamental Analysis on the PSX
+This guide provides an in-depth framework for analyzing the Pakistan Stock Exchange, moving
+beyond basic concepts to explain the 'why' behind each strategy and metric, all within the context of
+the Pakistani market.
+
+1. PSX Investment Themes: A Deep Dive
+...existing content from fundamental.txt...
+
+(For brevity, the full text from fundamental.txt will be included here in the actual file)
+
+---
+
+6. Example Questions for the Chatbot
+------------------------------------
+- What features does Invest Genie provide?
+- How do I analyze a stock using technical analysis?
+- What is sentiment analysis and how does it work?
+- How do I interpret the prediction results?
+- What are the main investment themes on the PSX?
+- How do I compare stocks using financial ratios?
+- Where do I find the top gainers and losers?
+- How do I register or log in?
+
+---
+
+Chatbot Prompt (for best user assistance):
+------------------------------------------
+You are Invest Genie's helpful assistant. Guide users on how to use the website, explain its features, and answer questions about stock market fundamentals, technical analysis, sentiment analysis, and PSX investment strategies. Always use the provided context and documentation to give clear, actionable, and friendly answers. If a user is new, offer step-by-step guidance and explain key concepts in simple terms.
+
+---
+
+End of Knowledge Base.

@@ -1,104 +1,1154 @@
 {% extends "base.html" %}
 {% block content %}
-<section style="background: linear-gradient(90deg,#f8fafc 60%,#e0e7ef 100%); border-radius: 0 0 32px 32px; padding: 2.5rem 0 2rem 0; box-shadow: 0 2px 16px #0001; margin-bottom:2.5rem;">
-  <div style="text-align:center;">
-    <h1 style="font-size:2.2rem; font-weight:800; color:#2d3a4a;">📈 Technical Analysis</h1>
-    <p style="color:#64748b; margin:1.2rem 0 0.5rem 0; font-size:1.13rem; max-width:700px; margin-left:auto; margin-right:auto;">
-      Instantly analyze PSX stocks with AI-powered predictions and key technical indicators.
-    </p>
-    <form method="POST" style="margin-top:2rem; display:inline-block; background:#fff; padding:1.2rem 2rem; border-radius:14px; box-shadow:0 1px 8px #0001;">
-      <label for="stock" style="font-weight:600; color:#223388;">Stock Ticker:</label>
-      <input type="text" name="stock" id="stock" required style="margin:0 0.7rem; padding:0.4rem 0.8rem; border-radius:6px; border:1px solid #cbd5e1;">
-      <button type="submit" style="background:#223388; color:#fff; border:none; border-radius:6px; padding:0.4rem 1.2rem; font-weight:600; cursor:pointer;">Predict</button>
-    </form>
-    {% if error %}
-      <div style="color: #ef4444; margin-top: 10px; font-weight:600;">{{ error }}</div>
-    {% endif %}
-  </div>
+
+<style>
+/* Dark Theme Technical Analysis CSS */
+.technical-hero {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #4a5568 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 8rem 1rem 25rem 1rem;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.technical-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff03" points="0,1000 1000,0 1000,1000"/></svg>');
+    background-size: cover;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    color: white;
+}
+
+.hero-title {
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-description {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    line-height: 1.6;
+    color: #cbd5e1;
+    max-width: 600px;
+    margin: 0 auto 3rem auto;
+}
+
+.prediction-form {
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(251,191,36,0.3);
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.prediction-form:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(251,191,36,0.5);
+    transform: translateY(-2px);
+}
+
+.form-label {
+    font-weight: 700;
+    color: #fbbf24;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.custom-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+    margin: 0 1rem;
+}
+
+.custom-dropdown {
+    position: relative;
+    min-width: 320px;
+}
+
+.dropdown-selected {
+    background: rgba(26,32,44,0.9);
+    border: 2px solid rgba(251,191,36,0.4);
+    border-radius: 12px;
+    padding: 0.8rem 3rem 0.8rem 1.2rem;
+    color: #e2e8f0;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropdown-selected:hover {
+    border-color: rgba(251,191,36,0.6);
+    background: rgba(26,32,44,0.95);
+}
+
+.custom-dropdown.open .dropdown-selected {
+    border-color: #fbbf24;
+    background: rgba(26,32,44,0.95);
+    box-shadow: 0 0 0 3px rgba(251,191,36,0.2), 0 8px 25px rgba(0,0,0,0.3);
+    border-radius: 12px 12px 0 0;
+}
+
+.selected-text {
+    color: #cbd5e1;
+    flex: 1;
+}
+
+.dropdown-arrow {
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(26,32,44,0.98);
+    border: 2px solid #fbbf24;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    z-index: 9999;
+}
+
+.custom-dropdown.open .dropdown-options {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.dropdown-search {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(251,191,36,0.2);
+    position: sticky;
+    top: 0;
+    background: rgba(26,32,44,0.98);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.dropdown-search input {
+    width: 100%;
+    background: rgba(45,55,72,0.8);
+    border: 1px solid rgba(251,191,36,0.3);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.dropdown-search input:focus {
+    border-color: #fbbf24;
+    background: rgba(45,55,72,0.9);
+    box-shadow: 0 0 0 2px rgba(251,191,36,0.2);
+}
+
+.dropdown-search input::placeholder {
+    color: #64748b;
+}
+
+.options-container {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+}
+
+.options-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.options-container::-webkit-scrollbar-track {
+    background: rgba(45,55,72,0.5);
+    border-radius: 3px;
+}
+
+.options-container::-webkit-scrollbar-thumb {
+    background: rgba(251,191,36,0.6);
+    border-radius: 3px;
+}
+
+.options-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(251,191,36,0.8);
+}
+
+.option-group {
+    margin-bottom: 0.5rem;
+}
+
+.group-header {
+    background: rgba(45,55,72,0.8);
+    color: #fbbf24;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(251,191,36,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.option {
+    padding: 0.8rem 1.2rem;
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.option:hover {
+    background: rgba(251,191,36,0.1);
+    color: #fbbf24;
+    padding-left: 1.5rem;
+}
+
+.option:last-child {
+    border-bottom: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .custom-dropdown {
+        min-width: 280px;
+    }
+    
+    .dropdown-selected {
+        padding: 0.7rem 2.5rem 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .options-container {
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-dropdown {
+        min-width: 250px;
+    }
+    
+    .dropdown-selected {
+        padding: 0.6rem 2rem 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .option {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .options-container {
+        max-height: 200px;
+    }
+}
+
+.predict-btn {
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    color: #1a202c;
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem 2rem;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(251,191,36,0.3);
+    margin-top: 10px;
+}
+
+.predict-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(251,191,36,0.5);
+    background: linear-gradient(45deg, #f59e0b, #fbbf24);
+}
+
+.error-message {
+    color: #ef4444;
+    margin-top: 1rem;
+    font-weight: 600;
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px;
+    padding: 0.8rem 1.2rem;
+    display: inline-block;
+}
+
+/* Results Section */
+.results-section {
+    padding: 5rem 1rem;
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #1a202c 100%);
+    position: relative;
+    overflow: hidden;
+    min-height: 80vh;
+}
+
+.results-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff08" points="0,0 300,0 0,300"/><polygon fill="%23fbbf2408" points="700,1000 1000,700 1000,1000"/></svg>');
+    background-size: cover;
+    pointer-events: none;
+}
+
+.results-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.result-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 2.5rem;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(251,191,36,0.25);
+    margin-bottom: 2rem;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.result-card:hover {
+    background: rgba(251,191,36,0.12);
+    transform: translateY(-5px);
+    border-color: rgba(251,191,36,0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.stock-name {
+    color: #fbbf24;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.prediction-badge {
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    color: #1a202c;
+    font-weight: 800;
+    padding: 0.8rem 1.8rem;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    display: inline-block;
+    margin: 1rem 0;
+    box-shadow: 0 4px 15px rgba(251,191,36,0.3);
+}
+
+.section-title {
+    color: #e2e8f0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 2rem 0 1rem 0;
+    border-bottom: 2px solid rgba(251,191,36,0.3);
+    padding-bottom: 0.5rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.feature-item {
+    background: rgba(26,32,44,0.6);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid rgba(251,191,36,0.2);
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: rgba(26,32,44,0.8);
+    border-color: rgba(251,191,36,0.4);
+    transform: scale(1.02);
+}
+
+.feature-label {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature-value {
+    color: #fbbf24;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.models-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.model-card {
+    background: rgba(26,32,44,0.6);
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    border: 1px solid rgba(251,191,36,0.2);
+    transition: all 0.3s ease;
+}
+
+.model-card:hover {
+    background: rgba(26,32,44,0.8);
+    border-color: rgba(251,191,36,0.4);
+    transform: translateY(-3px);
+}
+
+.model-name {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.model-prediction {
+    color: #fbbf24;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.final-prediction {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+}
+
+.chart-container {
+    background: rgba(26,32,44,0.6);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(251,191,36,0.2);
+}
+
+.chart-title {
+    color: #e2e8f0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+#stockChart {
+    background: rgba(248,250,252,0.95) !important;
+    border-radius: 12px;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Loading Overlay Styles */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26,32,44,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loading-container {
+    text-align: center;
+    color: white;
+    max-width: 500px;
+    padding: 3rem;
+}
+
+.loading-spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 2rem auto;
+    position: relative;
+}
+
+.spinner-ring {
+    width: 100%;
+    height: 100%;
+    border: 4px solid rgba(251,191,36,0.2);
+    border-top: 4px solid #fbbf24;
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+}
+
+.spinner-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.loading-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.loading-message {
+    font-size: 1.1rem;
+    color: #cbd5e1;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.loading-progress {
+    width: 100%;
+    height: 6px;
+    background: rgba(251,191,36,0.2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    border-radius: 3px;
+    animation: progressFlow 3s ease-in-out infinite;
+}
+
+@keyframes progressFlow {
+    0% { width: 0%; }
+    50% { width: 70%; }
+    100% { width: 100%; }
+}
+
+.loading-steps {
+    text-align: left;
+    margin-top: 2rem;
+}
+
+.loading-step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    opacity: 0.5;
+    transition: all 0.5s ease;
+}
+
+.loading-step.active {
+    opacity: 1;
+    color: #fbbf24;
+}
+
+.loading-step.completed {
+    opacity: 0.7;
+    color: #10b981;
+}
+
+.step-icon {
+    margin-right: 0.8rem;
+    font-size: 1.2rem;
+}
+
+.step-text {
+    font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .prediction-form {
+        padding: 1.5rem;
+    }
+    
+    .form-input {
+        width: 160px;
+        margin: 0.5rem;
+    }
+    
+    .features-grid,
+    .models-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .result-card {
+        padding: 1.8rem;
+    }
+    
+    .technical-hero {
+        padding: 5rem 1rem 8rem 1rem;
+        min-height: 75vh;
+    }
+    
+    .custom-dropdown {
+        min-width: 280px;
+    }
+    
+    .dropdown-selected {
+        padding: 0.7rem 2.5rem 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .options-container {
+        max-height: 250px;
+    }
+    
+    .loading-container {
+        padding: 2rem;
+    }
+    
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .loading-title {
+        font-size: 1.5rem;
+    }
+    
+    .loading-message {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .technical-hero {
+        padding: 3rem 1rem 6rem 1rem;
+        min-height: 60vh;
+    }
+    
+    .prediction-form {
+        padding: 1.2rem;
+    }
+    
+    .form-input {
+        width: 140px;
+        margin: 0.3rem;
+    }
+    
+    .features-grid,
+    .models-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .result-card {
+        padding: 1.5rem;
+    }
+    
+    .results-section {
+        padding: 3rem 1rem;
+        min-height: 70vh;
+    }
+}
+</style>
+
+<!-- HERO SECTION -->
+<section class="technical-hero">
+    <div class="hero-content">
+        <h1 class="hero-title" style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiMyZDM3NDgiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSI+CjxnIHN0cm9rZT0iI2ZiYmYyNCIgc3Ryb2tlLXdpZHRoPSIxLjUiPgo8IS0tIENhbmRsZXN0aWNrIDEgLS0+CjxyZWN0IHg9IjQiIHk9IjE2IiB3aWR0aD0iNCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmJiZjI0Ii8+CjxsaW5lIHgxPSI2IiB5MT0iMTIiIHgyPSI2IiB5Mj0iMTYiLz4KPGxpbmUgeDE9IjYiIHkxPSIyNCIgeDI9IjYiIHkyPSIyOCIvPgoKPCEtLSBDYW5kbGVzdGljayAyIC0tPgo8cmVjdCB4PSIxMiIgeT0iMjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjYiIGZpbGw9IiNmYmJmMjQiLz4KPGxpbmUgeDE9IjE0IiB5MT0iMTQiIHgyPSIxNCIgeTI9IjIwIi8+CjxsaW5lIHgxPSIxNCIgeTE9IjI2IiB4Mj0iMTQiIHkyPSIzMCIvPgoKPCEtLSBDYW5kbGVzdGljayAzIC0tPgo8cmVjdCB4PSIyMCIgeT0iMjIiIHdpZHRoPSI0IiBoZWlnaHQ9IjgiIGZpbGw9IiNmYmJmMjQiLz4KPGxpbmUgeDE9IjIyIiB5MT0iMTgiIHgyPSIyMiIgeTI9IjIyIi8+CjxsaW5lIHgxPSIyMiIgeTE9IjMwIiB4Mj0iMjIiIHkyPSIzNCIvPgoKPCEtLSBDYW5kbGVzdGljayA0IC0tPgo8cmVjdCB4PSIyOCIgeT0iMTQiIHdpZHRoPSI0IiBoZWlnaHQ9IjEwIiBmaWxsPSIjZmJiZjI0Ii8+CjxsaW5lIHgxPSIzMCIgeTE9IjEwIiB4Mj0iMzAiIHkyPSIxNCIvPgo8bGluZSB4MT0iMzAiIHkxPSIyNCIgeDI9IjMwIiB5Mj0iMjgiLz4KCjwhLS0gQ2FuZGxlc3RpY2sgNSAtLT4KPHJlY3QgeD0iMzYiIHk9IjEyIiB3aWR0aD0iNCIgaGVpZ2h0PSIxMiIgZmlsbD0iI2ZiYmYyNCIvPgo8bGluZSB4MT0iMzgiIHkxPSI4IiB4Mj0iMzgiIHkyPSIxMiIvPgo8bGluZSB4MT0iMzgiIHkxPSIyNCIgeDI9IjM4IiB5Mj0iMjgiLz4KCjwhLS0gVHJlbmQgbGluZSAtLT4KPHBhdGggZD0iTTYgMzBMMTQgMzJMMjIgMjhMMzAgMjZMMzggMjIiIHN0cm9rZT0iI2ZiYmYyNCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+CjwvZz4KPC9zdmc+Cjwvc3ZnPgo=" 
+                 alt="Technical Analysis" 
+                 style="width: 3.5rem; height: 3.5rem; margin-right: 0.5rem; filter: drop-shadow(0 4px 8px rgba(251,191,36,0.3));">
+            Technical Analysis
+        </h1>
+        <p class="hero-description">
+            🤖 Instantly analyze PSX stocks with AI-powered predictions and key technical indicators.
+        </p>
+        <form method="POST" class="prediction-form">
+            <label for="stock" class="form-label">📈 Select or Enter PSX Stock Symbol:</label>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; align-items: center;">
+                <div class="custom-dropdown-wrapper">
+                    <div class="custom-dropdown" id="stockDropdown">
+                        <div class="dropdown-selected" id="dropdownSelected">
+                            <span class="selected-text">Choose a stock symbol...</span>
+                            <div class="dropdown-arrow">
+                                <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                                    <path d="M1 1L6 6L11 1" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="dropdown-options" id="dropdownOptions">
+                            <div class="dropdown-search">
+                                <input type="text" id="stockSearch" placeholder="Search stocks..." autocomplete="off">
+                            </div>
+                            <div class="options-container">
+                                <div class="option-group">
+                                    <div class="group-header">🏦 Banking & Finance</div>
+                                    <div class="option" data-value="ABL">ABL - Allied Bank Limited</div>
+                                    <div class="option" data-value="BAHL">BAHL - Bank AL Habib Limited</div>
+                                    <div class="option" data-value="HMB">HMB - Habib Metropolitan Bank</div>
+                                    <div class="option" data-value="JSBL">JSBL - JS Bank Limited</div>
+                                    <div class="option" data-value="MCB">MCB - MCB Bank Limited</div>
+                                    <div class="option" data-value="MEBL">MEBL - Meezan Bank Limited</div>
+                                    <div class="option" data-value="NBP">NBP - National Bank of Pakistan</div>
+                                    <div class="option" data-value="UBL">UBL - United Bank Limited</div>
+                                    <div class="option" data-value="AKBL">AKBL - Askari Bank Limited</div>
+                                </div>
+                                <div class="option-group">
+                                    <div class="group-header">⛽ Oil & Gas</div>
+                                    <div class="option" data-value="OGDC">OGDC - Oil and Gas Development</div>
+                                    <div class="option" data-value="PPL">PPL - Pakistan Petroleum</div>
+                                    <div class="option" data-value="PSO">PSO - Pakistan State Oil</div>
+                                    <div class="option" data-value="MARI">MARI - Mari Petroleum Company</div>
+                                    <div class="option" data-value="APL">APL - Attock Petroleum</div>
+                                    <div class="option" data-value="POL">POL - Pakistan Oilfields</div>
+                                    <div class="option" data-value="HASCOL">HASCOL - Hascol Petroleum</div>
+                                </div>
+                                <div class="option-group">
+                                    <div class="group-header">🏗️ Cement</div>
+                                    <div class="option" data-value="LUCK">LUCK - Lucky Cement Limited</div>
+                                    <div class="option" data-value="DGKC">DGKC - D.G. Khan Cement</div>
+                                    <div class="option" data-value="CHCC">CHCC - Cherat Cement Company</div>
+                                    <div class="option" data-value="MLCF">MLCF - Maple Leaf Cement</div>
+                                    <div class="option" data-value="FCCL">FCCL - Fauji Cement Company</div>
+                                    <div class="option" data-value="ACPL">ACPL - Attock Cement Pakistan</div>
+                                    <div class="option" data-value="KOHAT">KOHAT - Kohat Cement Company</div>
+                                </div>
+                                <div class="option-group">
+                                    <div class="group-header">🌾 Fertilizer</div>
+                                    <div class="option" data-value="EFERT">EFERT - Engro Fertilizers</div>
+                                    <div class="option" data-value="FFC">FFC - Fauji Fertilizer Company</div>
+                                    <div class="option" data-value="FFBL">FFBL - Fauji Fertilizer Bin Qasim</div>
+                                    <div class="option" data-value="FATIMA">FATIMA - Fatima Fertilizer</div>
+                                </div>
+                                <div class="option-group">
+                                    <div class="group-header">🏭 Textiles</div>
+                                    <div class="option" data-value="GATM">GATM - Gul Ahmed Textile</div>
+                                    <div class="option" data-value="NML">NML - Nishat Mills Limited</div>
+                                    <div class="option" data-value="APTM">APTM - APL Textile Mills</div>
+                                    <div class="option" data-value="KTM">KTM - Kohat Textile Mills</div>
+                                    <div class="option" data-value="SAPT">SAPT - Sapphire Textile</div>
+                                </div>
+                                <div class="option-group">
+                                    <div class="group-header">💻 Technology</div>
+                                    <div class="option" data-value="SYS">SYS - Systems Limited</div>
+                                    <div class="option" data-value="TRG">TRG - TRG Pakistan Limited</div>
+                                    <div class="option" data-value="AIRLINK">AIRLINK - Airlink Communication</div>
+                                    <div class="option" data-value="PTCL">PTCL - Pakistan Telecommunications</div>
+                                    <div class="option" data-value="PACE">PACE - Pace Pakistan Limited</div>
+                                </div>
+                                <div class="option-group">
+                                    <div class="group-header">⚡ Power & Utilities</div>
+                                    <div class="option" data-value="KEL">KEL - K-Electric Limited</div>
+                                    <div class="option" data-value="HUBC">HUBC - Hub Power Company</div>
+                                    <div class="option" data-value="SSGC">SSGC - Sui Southern Gas</div>
+                                </div>
+                                <div class="option-group">
+                                    <div class="group-header">🏭 Manufacturing</div>
+                                    <div class="option" data-value="PKGS">PKGS - Packages Limited</div>
+                                    <div class="option" data-value="COLG">COLG - Colgate Palmolive</div>
+                                    <div class="option" data-value="BATA">BATA - Bata Pakistan</div>
+                                    <div class="option" data-value="ATLH">ATLH - Atlas Honda Limited</div>
+                                    <div class="option" data-value="UNITY">UNITY - Unity Foods Limited</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="stock" id="stockInput">
+                </div>
+                <input type="text" name="custom_stock" id="customStockInput" class="form-input" placeholder="Or type any symbol (e.g. MDTL, SANS, WTL)" style="min-width:180px; border-radius:8px; border:1px solid #fbbf24; padding:0.7rem 1rem; font-size:1rem; background:rgba(26,32,44,0.9); color:#e2e8f0;" autocomplete="off">
+            </div>
+            <button type="submit" class="predict-btn">🚀 Predict</button>
+            {% if error %}
+                <div class="error-message">{{ error }}</div>
+            {% endif %}
+        </form>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-container">
+                <div class="loading-spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-inner">🤖</div>
+                </div>
+                <div class="loading-title">Analyzing Your Stock</div>
+                <div class="loading-message" id="loadingMessage">
+                    Please wait while our AI models crunch the numbers...
+                </div>
+                <div class="loading-progress">
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="loading-steps" id="loadingSteps">
+                    <div class="loading-step" id="step1">
+                        <span class="step-icon">📊</span>
+                        <span class="step-text">Fetching latest stock data...</span>
+                    </div>
+                    <div class="loading-step" id="step2">
+                        <span class="step-icon">🔍</span>
+                        <span class="step-text">Calculating technical indicators...</span>
+                    </div>
+                    <div class="loading-step" id="step3">
+                        <span class="step-icon">🧠</span>
+                        <span class="step-text">Running AI prediction models...</span>
+                    </div>
+                    <div class="loading-step" id="step4">
+                        <span class="step-icon">📈</span>
+                        <span class="step-text">Generating insights...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.getElementById('stockDropdown');
+            const selected = document.getElementById('dropdownSelected');
+            const options = document.getElementById('dropdownOptions');
+            const search = document.getElementById('stockSearch');
+            const hiddenInput = document.getElementById('stockInput');
+            const selectedText = document.querySelector('.selected-text');
+            const arrow = document.querySelector('.dropdown-arrow');
+            const heroSection = document.querySelector('.technical-hero');
+            const resultsSection = document.querySelector('.results-section');
+
+            // Check if results are shown and adjust padding accordingly
+            if (resultsSection) {
+                heroSection.style.padding = '8rem 1rem 12rem 1rem';
+            }
+
+            // Toggle dropdown
+            selected.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isOpen = dropdown.classList.contains('open');
+                
+                if (isOpen) {
+                    closeDropdown();
+                } else {
+                    openDropdown();
+                }
+            });
+
+            function openDropdown() {
+                dropdown.classList.add('open');
+                arrow.style.transform = 'rotate(180deg)';
+                search.focus();
+                
+                // Always position dropdown downwards
+                options.style.top = '100%';
+                options.style.bottom = 'auto';
+                options.style.borderRadius = '0 0 12px 12px';
+            }
+
+            function closeDropdown() {
+                dropdown.classList.remove('open');
+                arrow.style.transform = 'rotate(0deg)';
+                search.value = '';
+                filterOptions('');
+            }
+
+            // Handle option selection
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const text = this.textContent;
+                    
+                    selectedText.textContent = text;
+                    hiddenInput.value = value;
+                    closeDropdown();
+                });
+            });
+
+            // Search functionality
+            search.addEventListener('input', function() {
+                filterOptions(this.value.toLowerCase());
+            });
+
+            function filterOptions(searchTerm) {
+                document.querySelectorAll('.option').forEach(option => {
+                    const text = option.textContent.toLowerCase();
+                    const show = text.includes(searchTerm);
+                    option.style.display = show ? 'block' : 'none';
+                });
+
+                // Hide/show group headers based on visible options
+                document.querySelectorAll('.option-group').forEach(group => {
+                    const visibleOptions = group.querySelectorAll('.option[style*="block"], .option:not([style*="none"])');
+                    group.style.display = visibleOptions.length > 0 ? 'block' : 'none';
+                });
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                closeDropdown();
+            });
+
+            // Prevent closing when clicking inside dropdown
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Loading functionality
+            const form = document.querySelector('form');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const steps = document.querySelectorAll('.loading-step');
+            
+            const loadingMessages = [
+                "🤖 Initializing AI analysis...",
+                "📊 Fetching latest market data...",
+                "🔍 Calculating technical indicators...",
+                "🧠 Running prediction models...",
+                "📈 Almost done, generating insights...",
+                "✨ Finalizing your analysis..."
+            ];
+
+            let messageIndex = 0;
+            let stepIndex = 0;
+
+            function showLoading() {
+                loadingOverlay.classList.add('active');
+                messageIndex = 0;
+                stepIndex = 0;
+                
+                // Reset all steps
+                steps.forEach(step => {
+                    step.classList.remove('active', 'completed');
+                });
+                
+                // Start the loading sequence
+                setTimeout(() => activateStep(0), 500);
+                setTimeout(() => activateStep(1), 1500);
+                setTimeout(() => activateStep(2), 3000);
+                setTimeout(() => activateStep(3), 4500);
+                
+                // Change messages periodically
+                const messageInterval = setInterval(() => {
+                    if (messageIndex < loadingMessages.length - 1) {
+                        loadingMessage.textContent = loadingMessages[messageIndex];
+                        messageIndex++;
+                    }
+                }, 1000);
+                
+                // Store interval to clear it later if needed
+                form.messageInterval = messageInterval;
+            }
+
+            function activateStep(index) {
+                if (steps[index]) {
+                    // Complete previous steps
+                    for (let i = 0; i < index; i++) {
+                        steps[i].classList.remove('active');
+                        steps[i].classList.add('completed');
+                    }
+                    // Activate current step
+                    steps[index].classList.add('active');
+                }
+            }
+
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                const customStock = document.getElementById('customStockInput').value.trim().toUpperCase();
+                const stockValue = hiddenInput.value;
+                if (customStock) {
+                    hiddenInput.value = customStock;
+                }
+                if (!hiddenInput.value) {
+                    e.preventDefault();
+                    alert('Please select or enter a stock symbol first!');
+                    return;
+                }
+                
+                // Show loading overlay
+                showLoading();
+                
+                // Let the form submit normally
+                // The loading will be hidden when the page reloads with results
+            });
+        });
+        </script>
+    </div>
 </section>
 
+<!-- RESULTS SECTION -->
 {% if stock_name or prediction or features or result or indicators or chart_data %}
-<section style="max-width:900px; margin:0 auto 2.5rem auto; background:#fff; border-radius:18px; box-shadow:0 2px 16px #0001; padding:2rem 1.5rem;">
-  {% if stock_name %}
-    <h2 style="color:#223388; font-size:1.3rem; font-weight:700;">Stock: {{ stock_name }}</h2>
-  {% endif %}
+<section class="results-section">
+    <div class="results-container">
+        <div class="result-card">
+            {% if stock_name %}
+                <div class="stock-name">📈 Stock: {{ stock_name }}</div>
+            {% endif %}
 
-  {% if prediction %}
-    <div style="margin:1.2rem 0;">
-      <span style="background:#e0e7ef; color:#223388; font-weight:700; padding:0.5rem 1.2rem; border-radius:8px; font-size:1.15rem;">Prediction: {{ prediction }}</span>
-    </div>
-  {% endif %}
+            {% if prediction %}
+                <div class="prediction-badge">
+                    🎯 Prediction: {{ prediction }}
+                </div>
+            {% endif %}
 
-  {% if features %}
-    <div style="margin:1.2rem 0;">
-      <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">Key Features</h3>
-      <ul style="color:#475569; font-size:1.08rem; margin-left:1.2rem;">
-        <li>Close Price: <b>{{ features.Close }}</b></li>
-        <li>SMA 30: <b>{{ features.SMA_30 }}</b></li>
-        <li>RSI: <b>{{ features.RSI }}</b></li>
-        <li>Price Change %: <b>{{ features.Price_Change_Pct }}</b></li>
-      </ul>
-    </div>
-  {% endif %}
+            {% if features %}
+                <h3 class="section-title">📊 Key Features</h3>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-label">Close Price</div>
+                        <div class="feature-value">{{ features.Close }}</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-label">SMA 30</div>
+                        <div class="feature-value">{{ features.SMA_30 }}</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-label">RSI</div>
+                        <div class="feature-value">{{ features.RSI }}</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-label">Price Change %</div>
+                        <div class="feature-value">{{ features.Price_Change_Pct }}</div>
+                    </div>
+                </div>
+            {% endif %}
 
-  {% if result %}
-    <div style="margin:1.2rem 0;">
-      <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">Model Predictions</h3>
-      <ul style="color:#475569; font-size:1.08rem; margin-left:1.2rem;">
-        <li>Logistic Regression: <b>{{ result.Logistic }}</b></li>
-        <li>SVM: <b>{{ result.SVM }}</b></li>
-        <li>Random Forest: <b>{{ result.RandomForest }}</b></li>
-        <li style="margin-top:0.5rem;"><strong>Final Ensemble: <span style="color:#223388;">{{ result.Final }}</span></strong></li>
-      </ul>
-    </div>
-  {% endif %}
+            {% if result %}
+                <h3 class="section-title">🤖 Model Predictions</h3>
+                <div class="models-grid">
+                    <div class="model-card">
+                        <div class="model-name">Logistic Regression</div>
+                        <div class="model-prediction">{{ result.Logistic }}</div>
+                    </div>
+                    <div class="model-card">
+                        <div class="model-name">SVM</div>
+                        <div class="model-prediction">{{ result.SVM }}</div>
+                    </div>
+                    <div class="model-card">
+                        <div class="model-name">Random Forest</div>
+                        <div class="model-prediction">{{ result.RandomForest }}</div>
+                    </div>
+                    <div class="model-card final-prediction">
+                        <div class="model-name">🎯 Final Ensemble</div>
+                        <div class="model-prediction">{{ result.Final }}</div>
+                    </div>
+                </div>
+            {% endif %}
 
-  {% if indicators %}
-    <div style="margin:1.2rem 0;">
-      <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">Latest Indicators</h3>
-      <ul style="color:#475569; font-size:1.08rem; margin-left:1.2rem;">
-        {% for key, value in indicators.items() %}
-          <li>{{ key }}: <b>{{ value }}</b></li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endif %}
+            {% if indicators %}
+                <h3 class="section-title">📈 Latest Indicators</h3>
+                <div class="features-grid">
+                    {% for key, value in indicators.items() %}
+                    <div class="feature-item">
+                        <div class="feature-label">{{ key }}</div>
+                        <div class="feature-value">{{ value }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-  {% if chart_data %}
-    <div style="margin:2rem 0;">
-      <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">Stock Chart</h3>
-      <canvas id="stockChart" width="600" height="300" style="background:#f8fafc; border-radius:10px;"></canvas>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <script>
-        const chartData = {{ chart_data|tojson }};
-        const ctx = document.getElementById('stockChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: chartData.TIME,
-            datasets: [{
-              label: 'Close Price',
-              data: chartData.CLOSE,
-              borderColor: '#223388',
-              backgroundColor: 'rgba(34,51,136,0.08)',
-              fill: true,
-              tension: 0.2
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { display: false }
-            },
-            scales: {
-              x: { display: true, title: { display: true, text: 'Date' } },
-              y: { display: true, title: { display: true, text: 'Price' } }
-            }
-          }
-        });
-      </script>
+            {% if chart_data %}
+                <div class="chart-container">
+                    <h3 class="chart-title">📊 Stock Price Chart</h3>
+                    <canvas id="stockChart" width="600" height="300"></canvas>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        const chartData = {{ chart_data|tojson }};
+                        const ctx = document.getElementById('stockChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: chartData.TIME,
+                                datasets: [{
+                                    label: 'Close Price',
+                                    data: chartData.CLOSE,
+                                    borderColor: '#fbbf24',
+                                    backgroundColor: 'rgba(251,191,36,0.1)',
+                                    fill: true,
+                                    tension: 0.3,
+                                    borderWidth: 3
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { 
+                                        display: true,
+                                        labels: {
+                                            color: '#1a202c',
+                                            font: { weight: 'bold' }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: { 
+                                        display: true, 
+                                        title: { 
+                                            display: true, 
+                                            text: 'Date',
+                                            color: '#1a202c',
+                                            font: { weight: 'bold' }
+                                        },
+                                        ticks: { color: '#1a202c' }
+                                    },
+                                    y: { 
+                                        display: true, 
+                                        title: { 
+                                            display: true, 
+                                            text: 'Price (Rs)',
+                                            color: '#1a202c',
+                                            font: { weight: 'bold' }
+                                        },
+                                        ticks: { color: '#1a202c' }
+                                    }
+                                }
+                            }
+                        });
+                    </script>
+                </div>
+            {% endif %}
+        </div>
     </div>
-  {% endif %}
 </section>
 {% endif %}
+
 {% endblock %}

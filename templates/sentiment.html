@@ -1,37 +1,1236 @@
 {% extends "base.html" %}
 {% block content %}
-<section style="background: linear-gradient(90deg,#f8fafc 60%,#e0e7ef 100%); border-radius: 0 0 32px 32px; padding: 2.5rem 0 2rem 0; box-shadow: 0 2px 16px #0001; margin-bottom:2.5rem;">
-  <div style="text-align:center;">
-    <h1 style="font-size:2.2rem; font-weight:800; color:#2d3a4a;">�️ Sentiment Analysis</h1>
-    <p style="color:#64748b; margin:1.2rem 0 0.5rem 0; font-size:1.13rem; max-width:700px; margin-left:auto; margin-right:auto;">
-      Discover the mood of the PSX market with real-time news sentiment and headline analysis.
-    </p>
-    <form method="POST" style="margin-top:2rem; display:inline-block; background:#fff; padding:1.2rem 2rem; border-radius:14px; box-shadow:0 1px 8px #0001;">
-      <button type="submit" style="background:#223388; color:#fff; border:none; border-radius:6px; padding:0.4rem 1.2rem; font-weight:600; cursor:pointer;">Check Market Sentiment</button>
-    </form>
-  </div>
+
+<style>
+/* Dark Theme Sentiment Analysis CSS */
+.sentiment-hero {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #4a5568 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 8rem 1rem 8rem 1rem;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Loading Overlay Styles */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26,32,44,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loading-container {
+    text-align: center;
+    color: white;
+    max-width: 500px;
+    padding: 3rem;
+}
+
+.loading-spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 2rem auto;
+    position: relative;
+}
+
+.spinner-ring {
+    width: 100%;
+    height: 100%;
+    border: 4px solid rgba(251,191,36,0.2);
+    border-top: 4px solid #fbbf24;
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+}
+
+.spinner-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.loading-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.loading-message {
+    font-size: 1.1rem;
+    color: #cbd5e1;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.loading-progress {
+    width: 100%;
+    height: 6px;
+    background: rgba(251,191,36,0.2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    border-radius: 3px;
+    animation: progressFlow 4s ease-in-out infinite;
+}
+
+@keyframes progressFlow {
+    0% { width: 0%; }
+    50% { width: 80%; }
+    100% { width: 100%; }
+}
+
+.loading-steps {
+    text-align: left;
+    margin-top: 2rem;
+}
+
+.loading-step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    opacity: 0.5;
+    transition: all 0.5s ease;
+}
+
+.loading-step.active {
+    opacity: 1;
+    color: #fbbf24;
+}
+
+.loading-step.completed {
+    opacity: 0.7;
+    color: #10b981;
+}
+
+.step-icon {
+    margin-right: 0.8rem;
+    font-size: 1.2rem;
+}
+
+.step-text {
+    font-size: 0.95rem;
+}
+
+.sentiment-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff03" points="0,1000 1000,0 1000,1000"/></svg>');
+    background-size: cover;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    color: white;
+}
+
+.hero-title {
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.hero-description {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    line-height: 1.6;
+    color: #cbd5e1;
+    max-width: 600px;
+    margin: 0 auto 3rem auto;
+}
+
+.sentiment-form {
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(251,191,36,0.3);
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.sentiment-form:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(251,191,36,0.5);
+    transform: translateY(-2px);
+}
+
+.sentiment-btn {
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    color: #1a202c;
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(251,191,36,0.3);
+}
+
+.sentiment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(251,191,36,0.5);
+    background: linear-gradient(45deg, #f59e0b, #fbbf24);
+}
+
+/* Results Section */
+.results-section {
+    padding: 5rem 1rem;
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #1a202c 100%);
+    position: relative;
+    overflow: hidden;
+    min-height: 50vh;
+}
+
+.results-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff08" points="0,0 300,0 0,300"/><polygon fill="%23fbbf2408" points="700,1000 1000,700 1000,1000"/></svg>');
+    background-size: cover;
+    pointer-events: none;
+}
+
+.results-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.result-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 2.5rem;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(251,191,36,0.25);
+    margin-bottom: 2rem;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.result-card:hover {
+    background: rgba(251,191,36,0.12);
+    transform: translateY(-5px);
+    border-color: rgba(251,191,36,0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.sentiment-badge {
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    color: #1a202c;
+    font-weight: 800;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1.3rem;
+    display: inline-block;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(251,191,36,0.3);
+    text-align: center;
+    width: 100%;
+}
+
+.section-title {
+    color: #e2e8f0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 2rem 0 1.5rem 0;
+    border-bottom: 2px solid rgba(251,191,36,0.3);
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.articles-container {
+    background: rgba(26,32,44,0.6);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(251,191,36,0.2);
+}
+
+.article-item {
+    background: rgba(45,55,72,0.6);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(251,191,36,0.1);
+    transition: all 0.3s ease;
+}
+
+.article-item:hover {
+    background: rgba(45,55,72,0.8);
+    border-color: rgba(251,191,36,0.3);
+    transform: translateX(5px);
+}
+
+.article-item:last-child {
+    margin-bottom: 0;
+}
+
+.article-title {
+    color: #cbd5e1;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.article-link {
+    color: #fbbf24;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.article-link:hover {
+    color: #f59e0b;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sentiment-hero {
+        padding: 5rem 1rem 6rem 1rem;
+        min-height: 75vh;
+    }
+    
+    .sentiment-form {
+        padding: 1.5rem;
+    }
+    
+    .sentiment-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+    
+    .result-card {
+        padding: 1.8rem;
+    }
+    
+    .articles-container {
+        padding: 1.5rem;
+    }
+    
+    .article-item {
+        padding: 1.2rem;
+    }
+    
+    .loading-container {
+        padding: 2rem;
+    }
+    
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .loading-title {
+        font-size: 1.5rem;
+    }
+    
+    .loading-message {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sentiment-hero {
+        padding: 3rem 1rem 4rem 1rem;
+        min-height: 60vh;
+    }
+    
+    .sentiment-form {
+        padding: 1.2rem;
+    }
+    
+    .sentiment-btn {
+        padding: 0.7rem 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .result-card {
+        padding: 1.5rem;
+    }
+    
+    .results-section {
+        padding: 3rem 1rem;
+    }
+    
+    .hero-title {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .loading-container {
+        padding: 1.5rem;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .loading-title {
+        font-size: 1.3rem;
+    }
+    
+    .loading-message {
+        font-size: 0.9rem;
+    }
+    
+    .step-text {
+        font-size: 0.85rem;
+    }
+}
+</style>
+
+<!-- HERO SECTION -->
+<section class="sentiment-hero">
+    <div class="hero-content">
+        <h1 class="hero-title">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiMyZDM3NDgiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSI+CjxnIHN0cm9rZT0iI2ZiYmYyNCIgc3Ryb2tlLXdpZHRoPSIyIj4KPCEtLSBOZXdzIGljb24gLS0+CjxyZWN0IHg9IjgiIHk9IjEwIiB3aWR0aD0iMzIiIGhlaWdodD0iMjgiIHJ4PSI0IiBmaWxsPSJub25lIi8+CjxsaW5lIHgxPSIxMiIgeTE9IjE2IiB4Mj0iMzYiIHkyPSIxNiIvPgo8bGluZSB4MT0iMTIiIHkxPSIyMCIgeDI9IjMyIiB5Mj0iMjAiLz4KPGxpbmUgeDE9IjEyIiB5MT0iMjQiIHgyPSIyOCIgeTI9IjI0Ii8+CjxsaW5lIHgxPSIxMiIgeTE9IjI4IiB4Mj0iMzQiIHkyPSIyOCIvPgo8bGluZSB4MT0iMTIiIHkxPSIzMiIgeDI9IjMwIiB5Mj0iMzIiLz4KCjwhLS0gU2VudGltZW50IGluZGljYXRvcnMgLS0+CjxjaXJjbGUgY3g9IjE2IiBjeT0iNiIgcj0iMiIgZmlsbD0iIzEwYjk4MSIvPgo8Y2lyY2xlIGN4PSIyNCIgY3k9IjQiIHI9IjIiIGZpbGw9IiNmYmJmMjQiLz4KPGNpcmNsZSBjeD0iMzIiIGN5PSI2IiByPSIyIiBmaWxsPSIjZWY0NDQ0Ii8+CjwvZz4KPC9zdmc+Cjwvc3ZnPgo=" 
+                 alt="Sentiment Analysis" 
+                 style="width: 3.5rem; height: 3.5rem; filter: drop-shadow(0 4px 8px rgba(251,191,36,0.3));">
+            Sentiment Analysis
+        </h1>
+        <p class="hero-description">
+            🧠 Discover the mood of the PSX market with AI-powered real-time news sentiment and headline analysis.
+        </p>
+        <form method="POST" class="sentiment-form" id="sentimentForm">
+            <button type="submit" class="sentiment-btn">🚀 Check Market Sentiment</button>
+        </form>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-container">
+                <div class="loading-spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-inner">🧠</div>
+                </div>
+                <div class="loading-title">Analyzing Market Sentiment</div>
+                <div class="loading-message" id="loadingMessage">
+                    Please wait while we gather and analyze the latest market news...
+                </div>
+                <div class="loading-progress">
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="loading-steps" id="loadingSteps">
+                    <div class="loading-step" id="step1">
+                        <span class="step-icon">📰</span>
+                        <span class="step-text">Collecting latest news articles...</span>
+                    </div>
+                    <div class="loading-step" id="step2">
+                        <span class="step-icon">🔍</span>
+                        <span class="step-text">Analyzing article content...</span>
+                    </div>
+                    <div class="loading-step" id="step3">
+                        <span class="step-icon">🧠</span>
+                        <span class="step-text">Processing sentiment analysis...</span>
+                    </div>
+                    <div class="loading-step" id="step4">
+                        <span class="step-icon">📊</span>
+                        <span class="step-text">Generating market insights...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('sentimentForm');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const steps = document.querySelectorAll('.loading-step');
+            
+            const loadingMessages = [
+                "🧠 Initializing sentiment analysis...",
+                "📰 Scanning financial news sources...",
+                "🔍 Processing article content...",
+                "🤖 Running AI sentiment models...",
+                "📊 Calculating market mood...",
+                "✨ Almost done, compiling results..."
+            ];
+
+            let messageIndex = 0;
+
+            function showLoading() {
+                loadingOverlay.classList.add('active');
+                messageIndex = 0;
+                
+                // Reset all steps
+                steps.forEach(step => {
+                    step.classList.remove('active', 'completed');
+                });
+                
+                // Start the loading sequence
+                setTimeout(() => activateStep(0), 800);
+                setTimeout(() => activateStep(1), 2000);
+                setTimeout(() => activateStep(2), 3500);
+                setTimeout(() => activateStep(3), 5000);
+                
+                // Change messages periodically
+                const messageInterval = setInterval(() => {
+                    if (messageIndex < loadingMessages.length - 1) {
+                        loadingMessage.textContent = loadingMessages[messageIndex];
+                        messageIndex++;
+                    }
+                }, 1200);
+                
+                // Store interval to clear it later if needed
+                form.messageInterval = messageInterval;
+            }
+
+            function activateStep(index) {
+                if (steps[index]) {
+                    // Complete previous steps
+                    for (let i = 0; i < index; i++) {
+                        steps[i].classList.remove('active');
+                        steps[i].classList.add('completed');
+                    }
+                    // Activate current step
+                    steps[index].classList.add('active');
+                }
+            }
+
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                // Show loading overlay
+                showLoading();
+                
+                // Let the form submit normally
+                // The loading will be hidden when the page reloads with results
+            });
+        });
+        </script>
+    </div>
 </section>
 
+<!-- RESULTS SECTION -->
 {% if sentiment or articles %}
-<section style="max-width:900px; margin:0 auto 2.5rem auto; background:#fff; border-radius:18px; box-shadow:0 2px 16px #0001; padding:2rem 1.5rem;">
-  {% if sentiment %}
-    <div style="margin-bottom:1.5rem; text-align:center;">
-      <span style="background:#e0e7ef; color:#223388; font-weight:700; padding:0.5rem 1.2rem; border-radius:8px; font-size:1.15rem;">Market Sentiment: {{ sentiment }}</span>
+<section class="results-section">
+    <div class="results-container">
+        {% if sentiment %}
+            <!-- Overall Sentiment Card -->
+            <div class="result-card main-sentiment">
+                <div class="sentiment-header">
+                    <h2 class="section-title">
+                        📊 Market Sentiment Analysis
+                    </h2>
+                    {% if sentiment.metadata %}
+                        <div class="analysis-metadata">
+                            <span class="metadata-item">📰 {{ sentiment.metadata.article_count }} articles analyzed</span>
+                            <span class="metadata-item">⏱️ {{ sentiment.metadata.processing_time }}s processing time</span>
+                            <span class="metadata-item">🕒 {{ sentiment.metadata.analysis_timestamp }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="sentiment-main">
+                    {% set overall = sentiment.overall_sentiment %}
+                    <div class="sentiment-badge {{ overall.label.lower() }}">
+                        {% if overall.label == 'Positive' %}🟢{% elif overall.label == 'Negative' %}🔴{% else %}🟡{% endif %}
+                        {{ overall.label }} Sentiment
+                    </div>
+                    <div class="confidence-score">
+                        <div class="confidence-label">Confidence:</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: {{ overall.confidence }}%"></div>
+                        </div>
+                        <div class="confidence-text">{{ overall.confidence }}%</div>
+                    </div>
+                    <div class="sentiment-reasoning">
+                        <strong>Analysis:</strong> {{ overall.reasoning }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Findings (What Gemini Actually Found) -->
+            {% if sentiment.key_findings %}
+            <div class="result-card findings">
+                <h3 class="section-title">🔍 Key Findings from News Analysis</h3>
+                <div class="findings-list">
+                    {% for finding in sentiment.key_findings %}
+                    <div class="finding-item">
+                        <div class="finding-icon">📌</div>
+                        <div class="finding-text">{{ finding }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Full Natural Response (When no structured data available) -->
+            {% if sentiment.full_response and sentiment.analysis_method == 'natural_language_fallback' %}
+            <div class="result-card full-response">
+                <h3 class="section-title">🤖 Gemini's Complete Analysis</h3>
+                <div class="full-response-content">
+                    {{ sentiment.full_response }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Economic Context (If Identified by Gemini) -->
+            {% if sentiment.economic_context and sentiment.economic_context != "Not applicable" %}
+            <div class="result-card economic">
+                <h3 class="section-title">🏛️ Economic Context</h3>
+                <div class="economic-content">
+                    {{ sentiment.economic_context }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Companies Actually Mentioned in News -->
+            {% if sentiment.companies_mentioned %}
+            <div class="result-card companies">
+                <h3 class="section-title">🏢 Companies in Today's News</h3>
+                <div class="companies-grid">
+                    {% for company in sentiment.companies_mentioned %}
+                    <div class="company-item">
+                        <div class="company-name">{{ company.name }}</div>
+                        {% if company.sentiment_impact %}
+                        <div class="company-sentiment {{ company.sentiment_impact.lower() }}">
+                            {% if company.sentiment_impact == 'Positive' %}🟢{% elif company.sentiment_impact == 'Negative' %}🔴{% else %}🟡{% endif %}
+                            {{ company.sentiment_impact }}
+                        </div>
+                        {% endif %}
+                        {% if company.context %}
+                        <div class="company-context">{{ company.context }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Market Factors (Dynamic based on what Gemini finds) -->
+            {% if sentiment.market_factors %}
+            <div class="result-card indicators">
+                <h3 class="section-title">📊 Market Factors Identified</h3>
+                <div class="indicators-grid">
+                    {% if sentiment.market_factors.opportunities %}
+                    <div class="indicator-group positive">
+                        <div class="indicator-header">🟢 Market Opportunities</div>
+                        <ul class="indicator-list">
+                            {% for opportunity in sentiment.market_factors.opportunities %}
+                                <li>{{ opportunity }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if sentiment.market_factors.concerns %}
+                    <div class="indicator-group negative">
+                        <div class="indicator-header">🔴 Market Concerns</div>
+                        <ul class="indicator-list">
+                            {% for concern in sentiment.market_factors.concerns %}
+                                <li>{{ concern }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if sentiment.market_factors.neutral_developments %}
+                    <div class="indicator-group neutral">
+                        <div class="indicator-header">🟡 Neutral Developments</div>
+                        <ul class="indicator-list">
+                            {% for development in sentiment.market_factors.neutral_developments %}
+                                <li>{{ development }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if sentiment.market_factors.analysis_note %}
+                    <div class="indicator-group info">
+                        <div class="indicator-header">ℹ️ Analysis Note</div>
+                        <p>{{ sentiment.market_factors.analysis_note }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Investment Perspective (Natural Analysis) -->
+            {% if sentiment.investment_perspective %}
+            <div class="result-card investment">
+                <h3 class="section-title">💼 Investment Perspective</h3>
+                <div class="investment-content">
+                    {% if sentiment.investment_perspective.outlook %}
+                    <div class="investment-section">
+                        <h4>📊 Market Outlook</h4>
+                        <p>{{ sentiment.investment_perspective.outlook }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if sentiment.investment_perspective.risk_factors %}
+                    <div class="investment-section">
+                        <h4>⚠️ Risk Factors Identified</h4>
+                        <ul>
+                            {% for risk in sentiment.investment_perspective.risk_factors %}
+                            <li>{{ risk }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if sentiment.investment_perspective.opportunities %}
+                    <div class="investment-section">
+                        <h4>🎯 Investment Opportunities</h4>
+                        <ul>
+                            {% for opportunity in sentiment.investment_perspective.opportunities %}
+                            <li>{{ opportunity }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Market Indicators -->
+            {% if sentiment.market_indicators %}
+            <div class="result-card indicators">
+                <h3 class="section-title">📈 Market Indicators</h3>
+                <div class="indicators-grid">
+                    {% if sentiment.market_indicators.bullish_signals %}
+                    <div class="indicator-group bullish">
+                        <div class="indicator-header">🟢 Bullish Signals</div>
+                        <ul class="indicator-list">
+                            {% for signal in sentiment.market_indicators.bullish_signals %}
+                                <li>{{ signal }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if sentiment.market_indicators.bearish_signals %}
+                    <div class="indicator-group bearish">
+                        <div class="indicator-header">🔴 Bearish Signals</div>
+                        <ul class="indicator-list">
+                            {% for signal in sentiment.market_indicators.bearish_signals %}
+                                <li>{{ signal }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if sentiment.market_indicators.neutral_factors %}
+                    <div class="indicator-group neutral">
+                        <div class="indicator-header">� Neutral Factors</div>
+                        <ul class="indicator-list">
+                            {% for factor in sentiment.market_indicators.neutral_factors %}
+                                <li>{{ factor }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Sector Analysis -->
+            {% if sentiment.sector_analysis %}
+            <div class="result-card sectors">
+                <h3 class="section-title">🏭 Sector Analysis</h3>
+                <div class="sectors-grid">
+                    {% for sector, data in sentiment.sector_analysis.items() %}
+                    <div class="sector-item">
+                        <div class="sector-name">{{ sector.replace('_', ' ').title() }}</div>
+                        <div class="sector-sentiment {{ data.sentiment.lower() }}">
+                            {% if data.sentiment == 'Positive' %}🟢{% elif data.sentiment == 'Negative' %}🔴{% else %}🟡{% endif %}
+                            {{ data.sentiment }}
+                        </div>
+                        <div class="sector-confidence">{{ data.confidence }}% confidence</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Key Stocks Mentioned -->
+            {% if sentiment.key_stocks_mentioned %}
+            <div class="result-card stocks">
+                <h3 class="section-title">📈 Key Stocks Analysis</h3>
+                <div class="stocks-grid">
+                    {% for stock in sentiment.key_stocks_mentioned %}
+                    <div class="stock-item">
+                        <div class="stock-symbol">{{ stock.symbol }}</div>
+                        <div class="stock-sentiment {{ stock.sentiment.lower() }}">
+                            {% if stock.sentiment == 'Positive' %}🟢{% elif stock.sentiment == 'Negative' %}🔴{% else %}🟡{% endif %}
+                            {{ stock.sentiment }}
+                        </div>
+                        <div class="stock-confidence">{{ stock.confidence }}%</div>
+                        {% if stock.context %}
+                        <div class="stock-context">{{ stock.context }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Investment Outlook -->
+            {% if sentiment.investment_outlook %}
+            <div class="result-card outlook">
+                <h3 class="section-title">🔮 Investment Outlook</h3>
+                <div class="outlook-grid">
+                    <div class="outlook-item">
+                        <div class="outlook-label">Short Term</div>
+                        <div class="outlook-value {{ sentiment.investment_outlook.short_term.lower() }}">
+                            {{ sentiment.investment_outlook.short_term }}
+                        </div>
+                    </div>
+                    <div class="outlook-item">
+                        <div class="outlook-label">Medium Term</div>
+                        <div class="outlook-value {{ sentiment.investment_outlook.medium_term.lower() }}">
+                            {{ sentiment.investment_outlook.medium_term }}
+                        </div>
+                    </div>
+                    <div class="outlook-item">
+                        <div class="outlook-label">Risk Level</div>
+                        <div class="outlook-value risk-{{ sentiment.investment_outlook.risk_assessment.lower() }}">
+                            {{ sentiment.investment_outlook.risk_assessment }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Summary -->
+            {% if sentiment.summary %}
+            <div class="result-card summary">
+                <h3 class="section-title">📝 Executive Summary</h3>
+                <div class="summary-content">
+                    {{ sentiment.summary }}
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+        
+        {% if articles %}
+        <div class="result-card articles">
+            <h3 class="section-title">
+                📰 News Sources Analyzed ({{ article_count or articles|length }})
+            </h3>
+            <div class="articles-container">
+                {% for article in articles[:10] %}
+                    <div class="article-item">
+                        <div class="article-title">{{ article.title }}</div>
+                        {% if article.link %}
+                            <a href="{{ article.link }}" target="_blank" class="article-link">
+                                🔗 Read Full Article
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                                    <path d="M3.5 3h5v5M8.5 3l-5 5"/>
+                                </svg>
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                {% if articles|length > 10 %}
+                    <div class="more-articles">
+                        ... and {{ articles|length - 10 }} more articles
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
-  {% endif %}
-  {% if articles %}
-    <h3 style="color:#2d3a4a; font-size:1.1rem; font-weight:700;">📰 Headlines Analyzed</h3>
-    <ul style="color:#475569; font-size:1.08rem; margin-left:1.2rem;">
-      {% for article in articles %}
-        <li style="margin-bottom:0.5rem;">
-          {{ article.title }}
-          {% if article.link %}
-            <a href="{{ article.link }}" target="_blank" style="color:#3b82f6; text-decoration:underline; margin-left:0.5rem;">[Link]</a>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
 </section>
 {% endif %}
+
+<style>
+/* Enhanced Results Styling */
+.main-sentiment {
+    background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(245,158,11,0.1) 100%);
+    border: 2px solid rgba(251,191,36,0.3);
+}
+
+.sentiment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.analysis-metadata {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.metadata-item {
+    background: rgba(251,191,36,0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.2);
+}
+
+.sentiment-main {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.sentiment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.sentiment-badge.positive { 
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+.sentiment-badge.negative { 
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+.sentiment-badge.neutral { 
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.confidence-score {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.confidence-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    transition: width 1s ease;
+}
+
+.confidence-text {
+    font-weight: 600;
+    color: #fbbf24;
+}
+
+.indicators-grid, .sectors-grid, .stocks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.indicator-group, .sector-item, .stock-item {
+    background: rgba(255,255,255,0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.indicator-header {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.indicator-list {
+    list-style: none;
+    padding: 0;
+}
+
+.indicator-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.indicator-list li:last-child {
+    border-bottom: none;
+}
+
+.sector-name, .stock-symbol {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.outlook-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.outlook-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.outlook-label {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    margin-bottom: 0.5rem;
+}
+
+.outlook-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.outlook-value.positive { color: #10b981; }
+.outlook-value.negative { color: #ef4444; }
+.outlook-value.neutral { color: #f59e0b; }
+.outlook-value.risk-low { color: #10b981; }
+.outlook-value.risk-medium { color: #f59e0b; }
+.outlook-value.risk-high { color: #ef4444; }
+
+.summary-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #e2e8f0;
+    background: rgba(255,255,255,0.05);
+    padding: 2rem;
+    border-radius: 12px;
+    border-left: 4px solid #fbbf24;
+}
+
+.more-articles {
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+/* New Natural Analysis Styles */
+.findings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.finding-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: rgba(255,255,255,0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #fbbf24;
+}
+
+.finding-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.finding-text {
+    flex: 1;
+    line-height: 1.6;
+    color: #e2e8f0;
+}
+
+.full-response-content {
+    background: rgba(255,255,255,0.05);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    line-height: 1.7;
+    color: #e2e8f0;
+    white-space: pre-wrap;
+}
+
+.economic-content {
+    background: rgba(255,255,255,0.05);
+    padding: 2rem;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+    line-height: 1.7;
+    color: #e2e8f0;
+}
+
+.companies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.company-item {
+    background: rgba(255,255,255,0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.company-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #fbbf24;
+}
+
+.company-sentiment {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.company-context {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+.investment-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.investment-section h4 {
+    margin-bottom: 1rem;
+    color: #fbbf24;
+    font-size: 1.1rem;
+}
+
+.investment-section p {
+    line-height: 1.7;
+    color: #e2e8f0;
+    background: rgba(255,255,255,0.05);
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.investment-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.investment-section li {
+    background: rgba(255,255,255,0.05);
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    border-left: 3px solid #fbbf24;
+    color: #e2e8f0;
+}
+
+.indicator-group.info {
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.2);
+}
+
+.indicator-group.positive {
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.2);
+}
+
+.indicator-group.negative {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.2);
+}
+
+@media (max-width: 768px) {
+    .sentiment-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .analysis-metadata {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .confidence-score {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .indicators-grid, .sectors-grid, .stocks-grid, .outlook-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 {% endblock %}
